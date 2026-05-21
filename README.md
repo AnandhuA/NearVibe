@@ -1,17 +1,98 @@
-# near_vibe
+# NearVibe
 
-A new Flutter project.
+NearVibe is a modern location-based event discovery app built with Flutter.
+
+Users can explore nearby events, discover trending local activities, and create their own community events in real time through an interactive map and personalized feed.
+
+---
+
+## Features
+
+- Nearby event discovery
+- Interactive map view
+- Create and publish events
+- Event categories and filters
+- Save / Interested events
+- Real-time updates
+- Modern dark UI
+- Firebase backend integration
+
+---
+
+## Tech Stack
+
+- Flutter
+- Firebase
+- Google Maps API
+- Provider State Management
+
+---
+
+## Design Highlights
+
+- Deep dark UI (`#0f0f14`)
+- Purple accent theme (`#7c3aed`)
+- Card-based modern feed
+- Category color system
+- Interactive map pins
+- Smooth mobile-first experience
+
+---
+
+## Categories
+
+- Music
+- Tech
+- Gaming
+- Food
+- Sports
+- Meetup
+
+---
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+### Clone the repository
 
-A few resources to get you started if this is your first Flutter project:
+```bash
+git clone https://github.com/your-username/nearvibe.git
+```
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+### Install dependencies
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+flutter pub get
+```
+
+### Run the app
+
+```bash
+flutter run
+```
+
+---
+
+## Folder Structure
+
+```text
+lib/
+ ├── core/
+ ├── models/
+ ├── providers/
+ ├── screens/
+ ├── services/
+ ├── widgets/
+ └── main.dart
+```
+
+---
+
+## Vision
+
+NearVibe aims to help people instantly discover:
+
+> “What’s happening nearby right now?”
+
+through hyperlocal event discovery and community-driven experiences.
+
+---
