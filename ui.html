@@ -1,0 +1,424 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); background: transparent; }
+  .phone-wrap { display: flex; gap: 24px; justify-content: center; align-items: flex-start; padding: 1rem 0; flex-wrap: wrap; }
+  .phone { width: 220px; background: #0f0f14; border-radius: 32px; border: 2px solid #2a2a38; overflow: hidden; position: relative; flex-shrink: 0; }
+  .phone-label { text-align: center; font-size: 12px; color: var(--color-text-secondary); margin-top: 8px; font-weight: 500; }
+  .notch { width: 70px; height: 18px; background: #0f0f14; border-radius: 0 0 12px 12px; margin: 0 auto; position: relative; z-index: 10; }
+  .screen { padding: 0; min-height: 420px; }
+  /* Splash */
+  .splash { background: linear-gradient(160deg, #0f0f14 0%, #1a1030 100%); padding: 48px 20px 36px; text-align: center; min-height: 420px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+  .splash-logo { width: 56px; height: 56px; background: #7c3aed; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 26px; }
+  .splash h1 { font-size: 22px; font-weight: 600; color: #fff; letter-spacing: -0.5px; }
+  .splash p { font-size: 12px; color: #9090b0; line-height: 1.5; }
+  .splash-btn { background: #7c3aed; color: #fff; border: none; border-radius: 14px; padding: 12px 32px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+  .splash-btn-outline { background: transparent; color: #a78bfa; border: 1.5px solid #3d2d6e; border-radius: 14px; padding: 10px 32px; font-size: 13px; font-weight: 500; cursor: pointer; }
+  /* Home Feed */
+  .home-screen { background: #0f0f14; min-height: 420px; }
+  .home-header { padding: 14px 14px 8px; display: flex; align-items: center; justify-content: space-between; }
+  .home-greeting { font-size: 11px; color: #7070a0; }
+  .home-title { font-size: 16px; font-weight: 600; color: #fff; }
+  .avatar-sm { width: 28px; height: 28px; border-radius: 50%; background: #7c3aed; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; font-weight: 600; }
+  .search-bar { margin: 4px 14px 8px; background: #1c1c28; border-radius: 12px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; }
+  .search-bar i { color: #5555a0; font-size: 14px; }
+  .search-bar span { font-size: 12px; color: #5555a0; }
+  .cats { display: flex; gap: 6px; padding: 0 14px 10px; overflow: hidden; }
+  .cat { background: #1c1c28; border-radius: 20px; padding: 4px 10px; font-size: 10px; color: #9090b0; white-space: nowrap; }
+  .cat.active { background: #7c3aed; color: #fff; }
+  .section-label { padding: 0 14px 8px; font-size: 11px; font-weight: 600; color: #5555a0; text-transform: uppercase; letter-spacing: 0.5px; }
+  .event-card { margin: 0 14px 10px; background: #1a1a28; border-radius: 16px; overflow: hidden; }
+  .event-img { height: 80px; background: linear-gradient(135deg, #1e1040 0%, #3b1f6a 100%); position: relative; display: flex; align-items: center; justify-content: center; }
+  .event-img-2 { background: linear-gradient(135deg, #0e2a20 0%, #164d38 100%); }
+  .event-img-3 { background: linear-gradient(135deg, #1a1020 0%, #4a1a40 100%); }
+  .event-badge { position: absolute; top: 8px; left: 8px; background: #7c3aed; color: #fff; font-size: 9px; font-weight: 600; padding: 2px 7px; border-radius: 8px; }
+  .event-badge-green { background: #16a34a; }
+  .event-badge-pink { background: #be185d; }
+  .event-save { position: absolute; top: 8px; right: 8px; width: 22px; height: 22px; background: rgba(0,0,0,0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .event-save i { font-size: 12px; color: #fff; }
+  .event-info { padding: 10px 12px; }
+  .event-name { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .event-meta { display: flex; align-items: center; gap: 8px; }
+  .event-meta span { font-size: 10px; color: #6060a0; display: flex; align-items: center; gap: 3px; }
+  .event-meta i { font-size: 10px; }
+  .event-wave { font-size: 28px; opacity: 0.2; }
+  /* Map View */
+  .map-screen { background: #0f0f14; min-height: 420px; position: relative; }
+  .map-bg { height: 230px; background: #141824; position: relative; overflow: hidden; }
+  .map-grid { position: absolute; inset: 0; opacity: 0.15; }
+  .map-road { position: absolute; background: #2a3050; }
+  .map-road.h { height: 3px; left: 0; right: 0; }
+  .map-road.v { width: 3px; top: 0; bottom: 0; }
+  .pin { position: absolute; width: 28px; height: 32px; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+  .pin-dot { width: 28px; height: 28px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); display: flex; align-items: center; justify-content: center; }
+  .pin-dot i { transform: rotate(45deg); font-size: 13px; color: #fff; }
+  .pin-dot.purple { background: #7c3aed; }
+  .pin-dot.green { background: #16a34a; }
+  .pin-dot.pink { background: #be185d; }
+  .pin-dot.amber { background: #d97706; }
+  .map-search { position: absolute; top: 10px; left: 10px; right: 10px; background: #1c1c28; border-radius: 12px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; z-index: 5; }
+  .map-search span { font-size: 12px; color: #5555a0; }
+  .sheet { background: #0f0f14; border-radius: 20px 20px 0 0; padding: 14px; }
+  .sheet-handle { width: 36px; height: 3px; background: #2a2a40; border-radius: 2px; margin: 0 auto 12px; }
+  .sheet-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 10px; }
+  .mini-cards { display: flex; gap: 10px; overflow: hidden; }
+  .mini-card { min-width: 130px; background: #1a1a28; border-radius: 12px; padding: 10px; }
+  .mini-card-title { font-size: 11px; font-weight: 600; color: #fff; margin-bottom: 3px; }
+  .mini-card-sub { font-size: 10px; color: #6060a0; }
+  .mini-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+  /* Event Detail */
+  .detail-screen { background: #0f0f14; min-height: 420px; }
+  .detail-hero { height: 110px; background: linear-gradient(135deg, #1e1040, #4a1a70); position: relative; display: flex; align-items: center; justify-content: center; }
+  .detail-back { position: absolute; top: 12px; left: 12px; width: 26px; height: 26px; background: rgba(0,0,0,0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .detail-back i { font-size: 14px; color: #fff; }
+  .detail-share { position: absolute; top: 12px; right: 12px; width: 26px; height: 26px; background: rgba(0,0,0,0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .detail-body { padding: 14px; }
+  .detail-badge { display: inline-block; background: #2d1d60; color: #a78bfa; font-size: 9px; font-weight: 600; padding: 3px 8px; border-radius: 8px; margin-bottom: 8px; }
+  .detail-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+  .detail-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .detail-icon { width: 28px; height: 28px; background: #1c1c28; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .detail-icon i { font-size: 13px; color: #7c3aed; }
+  .detail-text-main { font-size: 11px; font-weight: 600; color: #ccc; }
+  .detail-text-sub { font-size: 10px; color: #6060a0; }
+  .attendees { display: flex; align-items: center; gap: 6px; margin: 10px 0; }
+  .att-stack { display: flex; }
+  .att-avatar { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid #0f0f14; margin-left: -6px; font-size: 8px; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+  .att-avatar:first-child { margin-left: 0; }
+  .att-label { font-size: 10px; color: #6060a0; }
+  .interested-btn { width: 100%; background: #7c3aed; color: #fff; border: none; border-radius: 14px; padding: 11px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 6px; }
+  /* Create Event */
+  .create-screen { background: #0f0f14; min-height: 420px; padding: 14px; }
+  .create-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .create-header i { font-size: 16px; color: #7070a0; }
+  .create-header span { font-size: 15px; font-weight: 600; color: #fff; }
+  .field-label { font-size: 10px; font-weight: 600; color: #6060a0; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 5px; }
+  .field-input { background: #1c1c28; border-radius: 10px; padding: 10px 12px; font-size: 12px; color: #fff; margin-bottom: 12px; }
+  .field-input.placeholder { color: #4040a0; }
+  .field-input-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .field-half { flex: 1; background: #1c1c28; border-radius: 10px; padding: 10px 12px; font-size: 12px; color: #4040a0; }
+  .img-upload { background: #1c1c28; border-radius: 12px; height: 60px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; }
+  .img-upload i { font-size: 18px; color: #4040a0; }
+  .img-upload span { font-size: 12px; color: #4040a0; }
+  .cat-pick { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .cat-chip { background: #1c1c28; border-radius: 20px; padding: 4px 10px; font-size: 10px; color: #7070b0; }
+  .cat-chip.selected { background: #2d1d60; color: #a78bfa; }
+  .publish-btn { width: 100%; background: #7c3aed; color: #fff; border: none; border-radius: 14px; padding: 11px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  /* Bottom Nav */
+  .bottom-nav { background: #0f0f14; border-top: 1px solid #1a1a28; padding: 8px 0 10px; display: flex; justify-content: space-around; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .nav-item i { font-size: 18px; color: #3a3a60; }
+  .nav-item.active i { color: #7c3aed; }
+  .nav-dot { width: 4px; height: 4px; border-radius: 50%; background: #7c3aed; }
+  /* Profile */
+  .profile-screen { background: #0f0f14; min-height: 420px; }
+  .profile-hero { background: linear-gradient(160deg, #1a1030 0%, #0f0f14 100%); padding: 20px 14px 16px; text-align: center; }
+  .profile-avatar { width: 52px; height: 52px; border-radius: 50%; background: #7c3aed; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff; font-weight: 700; margin: 0 auto 8px; border: 2.5px solid #3d2d6e; }
+  .profile-name { font-size: 15px; font-weight: 700; color: #fff; }
+  .profile-sub { font-size: 11px; color: #6060a0; margin-top: 2px; }
+  .profile-stats { display: flex; justify-content: center; gap: 24px; margin-top: 12px; }
+  .stat { text-align: center; }
+  .stat-num { font-size: 14px; font-weight: 700; color: #fff; }
+  .stat-label { font-size: 9px; color: #5555a0; text-transform: uppercase; letter-spacing: 0.4px; }
+  .saved-section { padding: 14px; }
+  .saved-item { display: flex; align-items: center; gap: 10px; background: #1a1a28; border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; }
+  .saved-thumb { width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .saved-thumb.p { background: #2d1d60; }
+  .saved-thumb.g { background: #0e2a20; }
+  .saved-thumb.m { background: #1a1020; }
+  .saved-thumb i { font-size: 16px; color: #a78bfa; }
+  .saved-thumb.g i { color: #4ade80; }
+  .saved-thumb.m i { color: #f472b6; }
+  .saved-name { font-size: 11px; font-weight: 600; color: #fff; }
+  .saved-date { font-size: 10px; color: #6060a0; }
+  .saved-pill { margin-left: auto; background: #1c1c28; border-radius: 8px; padding: 3px 8px; font-size: 9px; color: #7070a0; }
+</style>
+
+<h2 class="sr-only">LocalSpot — Location-Based Event Discovery App UI Mockup showing 6 screens: Splash, Home Feed, Map View, Event Details, Create Event, and User Profile</h2>
+
+<div class="phone-wrap">
+
+  <!-- Splash Screen -->
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen splash">
+        <div class="splash-logo">📍</div>
+        <h1>LocalSpot</h1>
+        <p>Discover what's happening<br>near you, right now</p>
+        <div style="display:flex;flex-direction:column;gap:8px;width:100%;margin-top:8px;">
+          <button class="splash-btn">Get Started</button>
+          <button class="splash-btn-outline">I have an account</button>
+        </div>
+        <p style="font-size:10px;color:#3a3a60;margin-top:12px;">Music · Gaming · Meetups · Food · More</p>
+      </div>
+    </div>
+    <div class="phone-label">1. Splash</div>
+  </div>
+
+  <!-- Home Feed -->
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen home-screen">
+        <div class="home-header">
+          <div>
+            <div class="home-greeting">Good Evening, Arjun 👋</div>
+            <div class="home-title">What's Nearby</div>
+          </div>
+          <div class="avatar-sm">AJ</div>
+        </div>
+        <div class="search-bar">
+          <i class="ti ti-search"></i>
+          <span>Search events near you...</span>
+        </div>
+        <div class="cats">
+          <div class="cat active">All</div>
+          <div class="cat">🎵 Music</div>
+          <div class="cat">🎮 Gaming</div>
+          <div class="cat">💻 Tech</div>
+          <div class="cat">🍔 Food</div>
+        </div>
+        <div class="section-label">Tonight · 0.5km away</div>
+        <div class="event-card">
+          <div class="event-img">
+            <div class="event-badge">🎵 Music</div>
+            <div class="event-save"><i class="ti ti-bookmark"></i></div>
+            <div class="event-wave">🎶</div>
+          </div>
+          <div class="event-info">
+            <div class="event-name">Indie Night Live</div>
+            <div class="event-meta">
+              <span><i class="ti ti-clock"></i>9 PM</span>
+              <span><i class="ti ti-map-pin"></i>The Loft</span>
+              <span style="color:#a78bfa;">142 going</span>
+            </div>
+          </div>
+        </div>
+        <div class="event-card">
+          <div class="event-img event-img-2">
+            <div class="event-badge event-badge-green">💻 Tech</div>
+            <div class="event-save"><i class="ti ti-heart"></i></div>
+            <div class="event-wave">⚡</div>
+          </div>
+          <div class="event-info">
+            <div class="event-name">Startup Founders Meetup</div>
+            <div class="event-meta">
+              <span><i class="ti ti-clock"></i>7 PM</span>
+              <span><i class="ti ti-map-pin"></i>CoWork Hub</span>
+              <span style="color:#4ade80;">Free</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item active"><i class="ti ti-home"></i><div class="nav-dot"></div></div>
+        <div class="nav-item"><i class="ti ti-map"></i></div>
+        <div class="nav-item"><i class="ti ti-plus" style="font-size:22px;color:#7c3aed;"></i></div>
+        <div class="nav-item"><i class="ti ti-bookmark"></i></div>
+        <div class="nav-item"><i class="ti ti-user"></i></div>
+      </div>
+    </div>
+    <div class="phone-label">2. Home Feed</div>
+  </div>
+
+  <!-- Map View -->
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen map-screen">
+        <div class="map-bg">
+          <div class="map-search">
+            <i class="ti ti-search" style="color:#5555a0;font-size:13px;"></i>
+            <span>Kochi, Kerala</span>
+            <i class="ti ti-adjustments-horizontal" style="color:#7c3aed;font-size:13px;margin-left:auto;"></i>
+          </div>
+          <!-- Roads -->
+          <div class="map-road h" style="top:40%;"></div>
+          <div class="map-road h" style="top:65%;"></div>
+          <div class="map-road v" style="left:30%;"></div>
+          <div class="map-road v" style="left:65%;"></div>
+          <!-- Pins -->
+          <div class="pin" style="top:28%;left:22%;">
+            <div class="pin-dot purple"><i class="ti ti-music"></i></div>
+          </div>
+          <div class="pin" style="top:18%;left:55%;">
+            <div class="pin-dot green"><i class="ti ti-device-laptop"></i></div>
+          </div>
+          <div class="pin" style="top:50%;left:62%;">
+            <div class="pin-dot pink"><i class="ti ti-device-gamepad-2"></i></div>
+          </div>
+          <div class="pin" style="top:42%;left:38%;">
+            <div class="pin-dot amber"><i class="ti ti-tools-kitchen-2"></i></div>
+          </div>
+          <!-- Current location -->
+          <div style="position:absolute;top:44%;left:46%;width:12px;height:12px;background:#3b82f6;border-radius:50%;border:2.5px solid #fff;box-shadow:0 0 0 6px rgba(59,130,246,0.2);"></div>
+        </div>
+        <div class="sheet">
+          <div class="sheet-handle"></div>
+          <div class="sheet-title">12 Events Near You</div>
+          <div class="mini-cards">
+            <div class="mini-card">
+              <div style="display:flex;align-items:center;gap:4px;margin-bottom:5px;"><span class="mini-dot" style="background:#7c3aed;"></span><span style="font-size:9px;color:#a78bfa;">Music</span></div>
+              <div class="mini-card-title">Indie Night Live</div>
+              <div class="mini-card-sub">0.5km · 9 PM</div>
+            </div>
+            <div class="mini-card">
+              <div style="display:flex;align-items:center;gap:4px;margin-bottom:5px;"><span class="mini-dot" style="background:#16a34a;"></span><span style="font-size:9px;color:#4ade80;">Tech</span></div>
+              <div class="mini-card-title">Founders Meetup</div>
+              <div class="mini-card-sub">1.1km · 7 PM</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item"><i class="ti ti-home"></i></div>
+        <div class="nav-item active"><i class="ti ti-map"></i><div class="nav-dot"></div></div>
+        <div class="nav-item"><i class="ti ti-plus" style="font-size:22px;color:#7c3aed;"></i></div>
+        <div class="nav-item"><i class="ti ti-bookmark"></i></div>
+        <div class="nav-item"><i class="ti ti-user"></i></div>
+      </div>
+    </div>
+    <div class="phone-label">3. Map View</div>
+  </div>
+
+  <!-- Event Detail -->
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen detail-screen">
+        <div class="detail-hero">
+          <div class="detail-back"><i class="ti ti-arrow-left"></i></div>
+          <div class="detail-share"><i class="ti ti-share"></i></div>
+          <span style="font-size:36px;opacity:0.25;">🎵</span>
+        </div>
+        <div class="detail-body">
+          <div class="detail-badge">🎵 Music</div>
+          <div class="detail-title">Indie Night Live at The Loft</div>
+          <div class="detail-row">
+            <div class="detail-icon"><i class="ti ti-calendar"></i></div>
+            <div><div class="detail-text-main">Thu, May 21 · 9:00 PM</div><div class="detail-text-sub">Doors open at 8:30 PM</div></div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-icon"><i class="ti ti-map-pin"></i></div>
+            <div><div class="detail-text-main">The Loft, MG Road</div><div class="detail-text-sub">0.5 km from you</div></div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-icon"><i class="ti ti-ticket"></i></div>
+            <div><div class="detail-text-main">₹299 entry</div><div class="detail-text-sub">Limited spots available</div></div>
+          </div>
+          <div class="attendees">
+            <div class="att-stack">
+              <div class="att-avatar" style="background:#7c3aed;color:#fff;">A</div>
+              <div class="att-avatar" style="background:#16a34a;color:#fff;">R</div>
+              <div class="att-avatar" style="background:#be185d;color:#fff;">K</div>
+              <div class="att-avatar" style="background:#d97706;color:#fff;">S</div>
+            </div>
+            <span class="att-label">142 going · 38 interested</span>
+          </div>
+          <button class="interested-btn">⚡ I'm Interested</button>
+        </div>
+      </div>
+      <div class="bottom-nav" style="padding:6px 0 8px;">
+        <div class="nav-item"><i class="ti ti-home"></i></div>
+        <div class="nav-item"><i class="ti ti-map"></i></div>
+        <div class="nav-item"><i class="ti ti-plus" style="font-size:22px;color:#7c3aed;"></i></div>
+        <div class="nav-item"><i class="ti ti-bookmark"></i></div>
+        <div class="nav-item"><i class="ti ti-user"></i></div>
+      </div>
+    </div>
+    <div class="phone-label">4. Event Details</div>
+  </div>
+
+  <!-- Create Event -->
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="create-screen">
+          <div class="create-header">
+            <i class="ti ti-arrow-left"></i>
+            <span>Create Event</span>
+          </div>
+          <div class="img-upload">
+            <i class="ti ti-camera"></i>
+            <span>Add Event Photo</span>
+          </div>
+          <div class="field-label">Event Title</div>
+          <div class="field-input">Rooftop Jam Session</div>
+          <div class="field-label">Category</div>
+          <div class="cat-pick">
+            <div class="cat-chip selected">🎵 Music</div>
+            <div class="cat-chip">🎮 Gaming</div>
+            <div class="cat-chip">💻 Tech</div>
+            <div class="cat-chip">🍔 Food</div>
+            <div class="cat-chip">🏃 Sports</div>
+          </div>
+          <div class="field-label">Date & Time</div>
+          <div class="field-input-row">
+            <div class="field-half">📅 May 24</div>
+            <div class="field-half">🕐 8:00 PM</div>
+          </div>
+          <div class="field-label">Location</div>
+          <div class="field-input placeholder">📍 Search or pin on map</div>
+          <button class="publish-btn">🚀 Publish Event</button>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">5. Create Event</div>
+  </div>
+
+  <!-- Profile -->
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen profile-screen">
+        <div class="profile-hero">
+          <div class="profile-avatar">AJ</div>
+          <div class="profile-name">Arjun Menon</div>
+          <div class="profile-sub">Kochi, Kerala · Joined 2024</div>
+          <div class="profile-stats">
+            <div class="stat"><div class="stat-num">8</div><div class="stat-label">Events</div></div>
+            <div class="stat"><div class="stat-num">24</div><div class="stat-label">Saved</div></div>
+            <div class="stat"><div class="stat-num">312</div><div class="stat-label">Following</div></div>
+          </div>
+        </div>
+        <div class="saved-section">
+          <div style="font-size:12px;font-weight:600;color:#fff;margin-bottom:10px;">Saved Events</div>
+          <div class="saved-item">
+            <div class="saved-thumb p"><i class="ti ti-music" style="color:#a78bfa;font-size:16px;"></i></div>
+            <div>
+              <div class="saved-name">Indie Night Live</div>
+              <div class="saved-date">Tonight · 0.5km</div>
+            </div>
+            <div class="saved-pill">Tonight</div>
+          </div>
+          <div class="saved-item">
+            <div class="saved-thumb g"><i class="ti ti-device-laptop" style="color:#4ade80;font-size:16px;"></i></div>
+            <div>
+              <div class="saved-name">Founders Meetup</div>
+              <div class="saved-date">Thu, May 21 · 1.1km</div>
+            </div>
+            <div class="saved-pill">Today</div>
+          </div>
+          <div class="saved-item">
+            <div class="saved-thumb m"><i class="ti ti-device-gamepad-2" style="color:#f472b6;font-size:16px;"></i></div>
+            <div>
+              <div class="saved-name">LAN Party Kochi</div>
+              <div class="saved-date">Sat, May 23</div>
+            </div>
+            <div class="saved-pill">2 days</div>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item"><i class="ti ti-home"></i></div>
+        <div class="nav-item"><i class="ti ti-map"></i></div>
+        <div class="nav-item"><i class="ti ti-plus" style="font-size:22px;color:#7c3aed;"></i></div>
+        <div class="nav-item"><i class="ti ti-bookmark"></i></div>
+        <div class="nav-item active"><i class="ti ti-user"></i><div class="nav-dot"></div></div>
+      </div>
+    </div>
+    <div class="phone-label">6. Profile</div>
+  </div>
+
+</div>
