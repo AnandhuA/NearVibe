@@ -55,7 +55,7 @@ Users can explore nearby events, discover trending local activities, and create 
 ### Clone the repository
 
 ```bash
-git clone https://github.com/your-username/nearvibe.git
+git clone https://github.com/AnandhuA/NearVibe.git
 ```
 
 ### Install dependencies
