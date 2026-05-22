@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:near_vibe/core/themes/app_button_styles.dart';
+import 'package:near_vibe/core/style/app_button_styles.dart';
 import 'package:near_vibe/core/themes/app_colors.dart';
-import 'package:near_vibe/core/themes/app_input_styles.dart';
+import 'package:near_vibe/core/style/app_input_styles.dart';
 
 class AppTheme {
   //-------------------Light Theme--------------------------

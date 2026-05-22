@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:near_vibe/core/responsive/responsive.dart';
-import 'package:near_vibe/core/themes/app_text_styles.dart';
+import 'package:near_vibe/core/style/app_text_styles.dart';
 import 'package:near_vibe/core/themes/theme_extensions.dart';
 import 'package:near_vibe/core/utils/validators.dart';
 import 'package:near_vibe/core/widgets/app_scaffold.dart';
 import 'package:near_vibe/core/widgets/app_snackbar.dart';
+import 'package:near_vibe/screens/layout/main_layout.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -34,6 +35,11 @@ class _SignupScreenState extends State<SignupScreen> {
 
   void onSignUp() {
     if (_formKey.currentState!.validate()) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => MainLayoutScreen()),
+        (route) => false,
+      );
       AppSnackBar.success(context, "Login Success");
     }
   }

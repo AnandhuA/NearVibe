@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:near_vibe/core/themes/app_theme.dart';
-import 'package:near_vibe/screens/splash_screen.dart';
+import 'package:near_vibe/screens/auth/landing_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      home: SplashScreen(),
+      home: LandingScreen(),
     );
   }
 }

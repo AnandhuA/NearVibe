@@ -21,15 +21,12 @@ class AppTextStyles {
 
   // Large Title
   static const TextStyle titleLarge = TextStyle(
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: FontWeight.w600,
   );
 
   // Medium Title
-  static const TextStyle titleMedium = TextStyle(
-    fontSize: 18,
-    fontWeight: FontWeight.w500,
-  );
+  static const TextStyle titleMedium = TextStyle(fontSize: 18);
 
   // Body Large
   static const TextStyle bodyLarge = TextStyle(fontSize: 16);

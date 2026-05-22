@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'app_colors.dart';
+import '../themes/app_colors.dart';
 
 class AppButtonStyles {
   static final elevatedButton = ElevatedButton.styleFrom(
