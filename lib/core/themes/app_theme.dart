@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:near_vibe/core/themes/app_button_styles.dart';
 import 'package:near_vibe/core/themes/app_colors.dart';
+import 'package:near_vibe/core/themes/app_input_styles.dart';
 
 class AppTheme {
   //-------------------Light Theme--------------------------
@@ -13,8 +14,7 @@ class AppTheme {
       style: AppButtonStyles.elevatedButton,
     ),
     textButtonTheme: TextButtonThemeData(style: AppButtonStyles.textButton),
-
-   
+    inputDecorationTheme: AppInputStyles.lightInputDecorationTheme,
   );
 
   //-------------------Dark Theme--------------------------
@@ -28,6 +28,6 @@ class AppTheme {
     ),
     textButtonTheme: TextButtonThemeData(style: AppButtonStyles.textButton),
 
-   
+    inputDecorationTheme: AppInputStyles.darkInputDecorationTheme,
   );
 }

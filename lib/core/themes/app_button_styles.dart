@@ -6,21 +6,16 @@ class AppButtonStyles {
     backgroundColor: AppColors.primary,
     foregroundColor: Colors.white,
     elevation: 0,
-    padding: const EdgeInsets.symmetric(vertical: 16),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(14),
-    ),
+    padding: const EdgeInsets.symmetric(vertical: 18),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
   );
 
   static final textButton = TextButton.styleFrom(
     foregroundColor: AppColors.primary,
-    padding: const EdgeInsets.symmetric(vertical: 16),
+    padding: const EdgeInsets.symmetric(vertical: 18),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(14),
-      side: const BorderSide(
-        color: AppColors.primary,
-        width: 1.5,
-      ),
+      side: const BorderSide(color: AppColors.primary, width: 1.5),
     ),
   );
 }
