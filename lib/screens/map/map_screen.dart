@@ -1,205 +1,282 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:near_vibe/core/style/app_text_styles.dart';
+import 'package:near_vibe/core/themes/theme_extensions.dart';
+import 'package:near_vibe/providers/map_providers.dart';
+import 'package:provider/provider.dart';
 
-class MapScreen extends StatelessWidget {
+class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
 
   @override
+  State<MapScreen> createState() => _MapScreenState();
+}
+
+class _MapScreenState extends State<MapScreen> {
+  final MapController mapController = MapController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      context.read<MapProvider>().getCurrentLocation();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final provider = context.watch<MapProvider>();
+
     return Scaffold(
-      body: Stack(
-        children: [
-          // ================= MAP =================
-          FlutterMap(
-            options: MapOptions(
-              initialCenter: LatLng(9.9312, 76.2673),
-              initialZoom: 13,
-            ),
+      body: provider.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : provider.currentLocation == null
+          ? const Center(child: Text("Location not found"))
+          : Stack(
+              children: [
+                // ================= MAP =================
+                FlutterMap(
+                  mapController: mapController,
 
-            children: [
-              TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.nearvibe.app',
-              ),
-
-              MarkerLayer(
-                markers: [
-                  buildMarker(
-                    point: LatLng(9.935, 76.26),
-                    color: const Color(0xFF8B5CF6),
+                  options: MapOptions(
+                    initialCenter: provider.currentLocation!,
+                    initialZoom: 15,
                   ),
 
-                  buildMarker(
-                    point: LatLng(9.928, 76.275),
-                    color: const Color(0xFF22C55E),
-                  ),
+                  children: [
+                    // ================= TILE LAYER =================
+                    TileLayer(
+                      urlTemplate:
+                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
 
-                  buildMarker(
-                    point: LatLng(9.94, 76.28),
-                    color: const Color(0xFFE91E63),
-                  ),
-
-                  buildMarker(
-                    point: LatLng(9.932, 76.268),
-                    color: const Color(0xFFF59E0B),
-                    active: true,
-                  ),
-                ],
-              ),
-            ],
-          ),
-
-          // ================= LOCATION =================
-          Positioned(
-            top: 60,
-            left: 20,
-            right: 20,
-
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-
-              decoration: BoxDecoration(
-                color: const Color(0xFF1C1C28),
-                borderRadius: BorderRadius.circular(20),
-              ),
-
-              child: const Text(
-                "Kochi, Kerala",
-                style: TextStyle(
-                  color: Color(0xFF7C3AED),
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-
-          // ================= BOTTOM PANEL =================
-          Align(
-            alignment: Alignment.bottomCenter,
-
-            child: Container(
-              height: 270,
-
-              padding: const EdgeInsets.all(24),
-
-              decoration: const BoxDecoration(
-                color: Color(0xFF0F0F14),
-
-                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-              ),
-
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 50,
-                      height: 4,
-
-                      decoration: BoxDecoration(
-                        color: Colors.white24,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                      userAgentPackageName: 'com.example.near_vibe',
                     ),
-                  ),
 
-                  const SizedBox(height: 24),
-
-                  const Text(
-                    "12 Events Near You",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  SizedBox(
-                    height: 120,
-
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-
-                      children: [
-                        eventCard(
-                          color: const Color(0xFF8B5CF6),
-                          category: "Music",
-                          title: "Indie Night Live",
-                          distance: "0.5km • 9 PM",
-                        ),
-
-                        const SizedBox(width: 14),
-
-                        eventCard(
-                          color: const Color(0xFF22C55E),
-                          category: "Tech",
-                          title: "Founder Meetup",
-                          distance: "1.1km • 7 PM",
+                    // ================= MARKERS =================
+                    MarkerLayer(
+                      markers: [
+                        buildMarker(
+                          point: provider.currentLocation!,
+                          color: context.primary,
+                          active: true,
                         ),
                       ],
                     ),
+                  ],
+                ),
+
+                // ================= SEARCH BAR =================
+                Positioned(
+                  top: 60,
+                  left: 20,
+                  right: 20,
+                  child: TextField(
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(
+                        Icons.location_pin,
+                        color: context.primary,
+                      ),
+                      hintText: "Search",
+                    ),
                   ),
-                ],
-              ),
+                ),
+
+                // ================= BOTTOM SHEET =================
+                DraggableScrollableSheet(
+                  initialChildSize: 0.30,
+                  minChildSize: 0.20,
+                  maxChildSize: 0.80,
+
+                  builder: (context, scrollController) {
+                    return Container(
+                      padding: const EdgeInsets.all(24),
+
+                      decoration: BoxDecoration(
+                        color: context.background,
+
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(30),
+                        ),
+                      ),
+
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+
+                        children: [
+                          // Handle
+                          Center(
+                            child: Container(
+                              width: 50,
+                              height: 5,
+
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade400,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          Text(
+                            "12 Events Nearby",
+                            style: AppTextStyles.headlineSmall.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          Expanded(
+                            child: ListView.separated(
+                              controller: scrollController,
+
+                              itemCount: 10,
+
+                              separatorBuilder: (context, index) {
+                                return const SizedBox(height: 16);
+                              },
+
+                              itemBuilder: (context, index) {
+                                return eventCard(context);
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 
   // ================= EVENT CARD =================
 
-  Widget eventCard({
-    required Color color,
-    required String category,
-    required String title,
-    required String distance,
-  }) {
+  Widget eventCard(BuildContext context) {
     return Container(
-      width: 180,
-
       padding: const EdgeInsets.all(16),
 
       decoration: BoxDecoration(
-        color: const Color(0xFF1C1C28),
-        borderRadius: BorderRadius.circular(24),
+        color: context.isDarkMode ? const Color(0xFF1C1C28) : Colors.white,
+
+        borderRadius: BorderRadius.circular(22),
+
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+          ),
+        ],
       ),
 
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            children: [
-              CircleAvatar(radius: 4, backgroundColor: color),
+          // ================= IMAGE =================
+          Container(
+            width: 90,
+            height: 90,
 
-              const SizedBox(width: 8),
-
-              Text(
-                category,
-                style: TextStyle(color: color, fontWeight: FontWeight.w600),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 14),
-
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+            decoration: BoxDecoration(
+              color: context.primary,
+              borderRadius: BorderRadius.circular(18),
             ),
           ),
 
-          const SizedBox(height: 8),
+          const SizedBox(width: 16),
 
-          Text(distance, style: const TextStyle(color: Colors.white54)),
+          // ================= DETAILS =================
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+
+                      decoration: BoxDecoration(
+                        color: context.primary.withValues(alpha: 0.12),
+
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+
+                      child: Text(
+                        "Music",
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: context.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+
+                    const Spacer(),
+
+                    Icon(Icons.bookmark_border_rounded, color: context.hitText),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+
+                Text(
+                  "Indie Night Festival",
+                  style: AppTextStyles.titleMedium.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                Row(
+                  children: [
+                    Icon(
+                      Icons.location_on_rounded,
+                      size: 18,
+                      color: context.hitText,
+                    ),
+
+                    const SizedBox(width: 6),
+
+                    Text(
+                      "Kakkanad • 0.5 km",
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: context.hitText,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 6),
+
+                Row(
+                  children: [
+                    Icon(
+                      Icons.access_time_rounded,
+                      size: 18,
+                      color: context.hitText,
+                    ),
+
+                    const SizedBox(width: 6),
+
+                    Text(
+                      "Today • 7:30 PM",
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: context.hitText,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -208,36 +285,20 @@ class MapScreen extends StatelessWidget {
   // ================= CUSTOM MARKER =================
 
   Marker buildMarker({
-    required LatLng point,
+    required point,
     required Color color,
     bool active = false,
   }) {
     return Marker(
       point: point,
 
-      width: 50,
-      height: 50,
+      width: 60,
+      height: 60,
 
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Transform.rotate(
-            angle: 0.8,
-
-            child: Container(
-              width: 38,
-              height: 38,
-
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(14),
-              ),
-            ),
-          ),
-
-          if (active)
-            const CircleAvatar(radius: 5, backgroundColor: Colors.white),
-        ],
+      child: Icon(
+        Icons.location_on_rounded,
+        color: color,
+        size: active ? 50 : 42,
       ),
     );
   }

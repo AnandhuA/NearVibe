@@ -17,6 +17,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_map: ^8.3.0
   latlong2: ^0.9.1
+  geolocator: ^14.0.2
+  provider: ^6.1.5+1
 
 dev_dependencies:
   flutter_test:
@@ -35,8 +37,6 @@ flutter_launcher_icons:
   web:
     generate: true
     image_path: "assets/app_icon/app_icon_1024.png"
-    background_color: "#hexcode"
-    theme_color: "#hexcode"
   windows:
     generate: true
     image_path: "assets/app_icon/app_icon_1024.png"

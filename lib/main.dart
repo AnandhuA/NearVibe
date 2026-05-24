@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:near_vibe/core/themes/app_theme.dart';
+import 'package:near_vibe/providers/map_providers.dart';
 import 'package:near_vibe/screens/auth/landing_screen.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,12 +13,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
-      home: LandingScreen(),
+    return MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => MapProvider())],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.system,
+        home: LandingScreen(),
+      ),
     );
   }
 }
