@@ -42,7 +42,11 @@ class HomeScreen extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               itemCount: dummyCategoriesList.length,
               itemBuilder: (context, index) {
-                final category = dummyCategoriesList[index];
+                final isAll = index == 0;
+
+                final category = isAll
+                    ? {"title": "All"}
+                    : dummyCategoriesList[index - 1];
                 return Container(
                   margin: EdgeInsets.symmetric(horizontal: 6, vertical: 6),
                   padding: EdgeInsets.symmetric(horizontal: 14),
@@ -52,7 +56,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      Icon(category["icon"], size: 18),
+                      if (!isAll) Icon(category["icon"], size: 18),
 
                       SizedBox(width: context.res.wxs),
 

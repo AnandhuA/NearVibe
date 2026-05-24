@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:near_vibe/core/themes/theme_extensions.dart';
 import 'package:near_vibe/screens/home/home_screen.dart';
+import 'package:near_vibe/screens/map/map_screen.dart';
 import 'package:near_vibe/screens/profile/profile_screen.dart';
 
 class MainLayoutScreen extends StatefulWidget {
@@ -15,7 +16,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
 
   final List<Widget> screens = const [
     HomeScreen(),
-    Center(child: Text("Map")),
+    MapScreen(),
     Center(child: Text("Add Event")),
     Center(child: Text("Saved")),
     ProfileScreen(),
@@ -38,7 +39,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
           children: [
             navItem(icon: Icons.home_rounded, index: 0),
 
-            navItem(icon: Icons.map_rounded, index: 1),
+            navItem(icon: Icons.map, index: 1),
 
             navItem(icon: Icons.add_circle_rounded, index: 2),
 
