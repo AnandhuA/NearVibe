@@ -29,6 +29,7 @@ class AppScaffold extends StatelessWidget {
       backgroundColor: context.background,
       appBar: appBar,
       floatingActionButton: floatingActionButton,
+      resizeToAvoidBottomInset: true,
 
       body: SafeArea(
         child: scrollable ? SingleChildScrollView(child: content) : content,

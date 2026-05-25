@@ -63,19 +63,27 @@ class _AddEventScreenState extends State<AddEventScreen> {
 
             onTap: () {
               showModalBottomSheet(
+                isScrollControlled: true,
                 context: context,
-                backgroundColor: const Color(0xFF111122),
+                backgroundColor: context.background,
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                 ),
 
                 builder: (_) {
-                  return LocationBottomSheet(
-                    onLocationSelected: (location) {
-                      setState(() {
-                        selectedLocation = location;
-                      });
-                    },
+                  return SingleChildScrollView(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom,
+                      ),
+                      child: LocationBottomSheet(
+                        onLocationSelected: (location) {
+                          setState(() {
+                            selectedLocation = location;
+                          });
+                        },
+                      ),
+                    ),
                   );
                 },
               );

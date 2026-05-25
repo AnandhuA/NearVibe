@@ -27,7 +27,7 @@ class CardWidget extends StatelessWidget {
                 height: 180,
 
                 decoration: BoxDecoration(
-                  color: AppColors.mapPinGlow,
+                  gradient: AppColors.primaryGradient,
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(20),
                   ),

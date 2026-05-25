@@ -16,6 +16,7 @@ class HomeScreen extends StatelessWidget {
     return AppScaffold(
       scrollable: true,
       appBar: AppBar(
+        scrolledUnderElevation: 0,
         backgroundColor: Colors.transparent,
         title: Column(
           crossAxisAlignment: .start,
@@ -37,8 +38,9 @@ class HomeScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          SizedBox(
+          Container(
             height: context.res.h(0.08),
+            padding: EdgeInsets.symmetric(vertical: 10),
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: dummyCategoriesList.length,
