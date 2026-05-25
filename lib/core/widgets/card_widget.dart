@@ -3,6 +3,7 @@ import 'package:near_vibe/core/responsive/responsive.dart';
 import 'package:near_vibe/core/style/app_text_styles.dart';
 import 'package:near_vibe/core/themes/app_colors.dart';
 import 'package:near_vibe/core/themes/theme_extensions.dart';
+import 'package:near_vibe/core/widgets/category_widget.dart';
 
 class CardWidget extends StatelessWidget {
   const CardWidget({super.key});
@@ -26,7 +27,7 @@ class CardWidget extends StatelessWidget {
                 height: 180,
 
                 decoration: BoxDecoration(
-                  gradient: AppColors.primaryGradient,
+                  color: AppColors.mapPinGlow,
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(20),
                   ),
@@ -92,26 +93,10 @@ class CardWidget extends StatelessWidget {
               ),
             ],
           ),
-          Container(
-            margin: EdgeInsets.all(10),
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: context.secondary,
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.music_note, size: 18),
-                SizedBox(width: context.res.wxs),
-                Text(
-                  "Music",
-                  style: AppTextStyles.bodyLarge.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
+          CategoryWidget(
+            icon: Icons.music_note,
+            title: "Music",
+            bgColor: context.secondary,
           ),
         ],
       ),

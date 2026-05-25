@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:near_vibe/core/themes/theme_extensions.dart';
+import 'package:near_vibe/screens/event/add_event_screen.dart';
 import 'package:near_vibe/screens/home/home_screen.dart';
 import 'package:near_vibe/screens/map/map_screen.dart';
 import 'package:near_vibe/screens/profile/profile_screen.dart';
@@ -17,7 +18,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
   final List<Widget> screens = const [
     HomeScreen(),
     MapScreen(),
-    Center(child: Text("Add Event")),
+    AddEventScreen(),
     Center(child: Text("Saved")),
     ProfileScreen(),
   ];

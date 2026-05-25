@@ -5,7 +5,8 @@ import 'package:near_vibe/core/themes/theme_extensions.dart';
 import 'package:near_vibe/core/utils/dummy_data.dart';
 import 'package:near_vibe/core/utils/helper_funtions.dart';
 import 'package:near_vibe/core/widgets/app_scaffold.dart';
-import 'package:near_vibe/screens/home/widgets/card_widget.dart';
+import 'package:near_vibe/core/widgets/category_widget.dart';
+import 'package:near_vibe/core/widgets/card_widget.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -37,7 +38,7 @@ class HomeScreen extends StatelessWidget {
       child: Column(
         children: [
           SizedBox(
-            height: context.res.h(0.06),
+            height: context.res.h(0.08),
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: dummyCategoriesList.length,
@@ -47,27 +48,10 @@ class HomeScreen extends StatelessWidget {
                 final category = isAll
                     ? {"title": "All"}
                     : dummyCategoriesList[index - 1];
-                return Container(
-                  margin: EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-                  padding: EdgeInsets.symmetric(horizontal: 14),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    color: context.primary.withValues(alpha: 0.09),
-                  ),
-                  child: Row(
-                    children: [
-                      if (!isAll) Icon(category["icon"], size: 18),
-
-                      SizedBox(width: context.res.wxs),
-
-                      Text(
-                        category["title"],
-                        style: AppTextStyles.bodyLarge.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
+                return CategoryWidget(
+                  icon: category["icon"],
+                  title: category["title"],
+                  bgColor: context.primary.withValues(alpha: 0.09),
                 );
               },
             ),

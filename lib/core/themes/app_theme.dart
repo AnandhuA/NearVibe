@@ -22,7 +22,6 @@ class AppTheme {
     brightness: Brightness.dark,
     primaryColor: AppColors.darkPrimary,
     scaffoldBackgroundColor: AppColors.darkBackground,
-
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: AppButtonStyles.elevatedButton,
     ),
