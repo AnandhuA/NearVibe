@@ -5,33 +5,30 @@ import 'package:near_vibe/core/themes/theme_extensions.dart';
 
 class LocationBottomSheet extends StatelessWidget {
   final Function(String location) onLocationSelected;
+  final VoidCallback onPickFromMap;
 
-  const LocationBottomSheet({super.key, required this.onLocationSelected});
+  const LocationBottomSheet({
+    super.key,
+    required this.onLocationSelected,
+    required this.onPickFromMap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController searchController = TextEditingController();
-
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Select Location", style: AppTextStyles.titleLarge),
-
-          SizedBox(height: context.res.hsm),
-
-          TextField(
-            controller: searchController,
-            decoration: const InputDecoration(
-              hintText: "Search location",
-              prefixIcon: Icon(Icons.search),
-            ),
+          Text(
+            "Select Location",
+            style: AppTextStyles.titleLarge,
           ),
 
           SizedBox(height: context.res.hsm),
 
+          /// Current Location
           InkWell(
             borderRadius: BorderRadius.circular(16),
             onTap: () {
@@ -40,18 +37,64 @@ class LocationBottomSheet extends StatelessWidget {
               Navigator.pop(context);
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 16,
+              ),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 color: context.primary.withValues(alpha: 0.08),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.my_location_rounded, color: context.primary),
+                  Icon(
+                    Icons.my_location_rounded,
+                    color: context.primary,
+                  ),
 
                   SizedBox(width: context.res.wsm),
 
-                  Text("Use Current Location", style: AppTextStyles.bodyLarge),
+                  Text(
+                    "Use Current Location",
+                    style: AppTextStyles.bodyLarge,
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          SizedBox(height: context.res.hsm),
+
+          /// Pick From Map
+          InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () {
+              Navigator.pop(context);
+
+              onPickFromMap();
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 16,
+              ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                color: context.primary.withValues(alpha: 0.08),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.map_rounded,
+                    color: context.primary,
+                  ),
+
+                  SizedBox(width: context.res.wsm),
+
+                  Text(
+                    "Pick From Map",
+                    style: AppTextStyles.bodyLarge,
+                  ),
                 ],
               ),
             ),

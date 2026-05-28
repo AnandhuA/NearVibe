@@ -8,36 +8,41 @@ class CategoryWidget extends StatelessWidget {
   final String title;
   final bool isSelected;
   final Color bgColor;
+  final VoidCallback? ontap;
   const CategoryWidget({
     super.key,
     this.icon,
     required this.title,
     this.isSelected = false,
     required this.bgColor,
+    this.ontap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30),
-        color: isSelected ? context.primary : bgColor,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon != null) Icon(icon, size: 18),
-          if (icon != null) SizedBox(width: context.res.wxs),
+    return GestureDetector(
+      onTap: ontap,
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(30),
+          color: isSelected ? context.primary : bgColor,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) Icon(icon, size: 18),
+            if (icon != null) SizedBox(width: context.res.wxs),
 
-          Text(
-            title,
-            style: AppTextStyles.bodyLarge.copyWith(
-              fontWeight: FontWeight.w600,
+            Text(
+              title,
+              style: AppTextStyles.bodyLarge.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
