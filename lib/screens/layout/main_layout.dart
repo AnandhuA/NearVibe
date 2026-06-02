@@ -4,6 +4,7 @@ import 'package:near_vibe/screens/event/add_event_screen.dart';
 import 'package:near_vibe/screens/home/home_screen.dart';
 import 'package:near_vibe/screens/map/map_screen.dart';
 import 'package:near_vibe/screens/profile/profile_screen.dart';
+import 'package:near_vibe/screens/saved/saved_events_screen.dart';
 
 class MainLayoutScreen extends StatefulWidget {
   const MainLayoutScreen({super.key});
@@ -19,7 +20,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
     HomeScreen(),
     MapScreen(),
     AddEventScreen(),
-    Center(child: Text("Saved")),
+    SavedEventsScreen(),
     ProfileScreen(),
   ];
 

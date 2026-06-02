@@ -21,7 +21,7 @@ class AppScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final content = Padding(
       padding:
-          padding ?? const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          padding ?? const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: child,
     );
 

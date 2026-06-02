@@ -19,7 +19,7 @@ class LandingScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            "NearVibe",
+            "__________",
             textAlign: TextAlign.center,
             style: AppTextStyles.headlineLarge.copyWith(color: context.primary),
           ),
