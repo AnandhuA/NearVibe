@@ -98,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 return ElevatedButton(
                   onPressed: onLogin,
                   child: authProvider.isLoading
-                      ? SpinKitThreeBounce(color: AppColors.whiteText, size: 18)
+                      ? SpinKitThreeBounce(color: AppColors.loadingColor, size: 18)
                       : Text("Login", style: AppTextStyles.titleMedium),
                 );
               },

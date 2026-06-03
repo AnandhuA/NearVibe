@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:near_vibe/core/style/app_text_styles.dart';
+import 'package:near_vibe/core/themes/app_colors.dart';
 import 'package:near_vibe/core/themes/theme_extensions.dart';
 import 'package:near_vibe/providers/map_providers.dart';
 import 'package:provider/provider.dart';
@@ -32,7 +34,12 @@ class _MapScreenState extends State<MapScreen> {
 
     return Scaffold(
       body: provider.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: SpinKitThreeBounce(
+                color: AppColors.loadingColor,
+                size: 18,
+              ),
+            )
           : provider.currentLocation == null
           ? const Center(child: Text("Location not found"))
           : Stack(

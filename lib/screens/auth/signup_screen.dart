@@ -113,7 +113,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 return ElevatedButton(
                   onPressed: onSignUp,
                   child: authProvider.isLoading
-                      ? SpinKitThreeBounce(color: AppColors.whiteText, size: 18)
+                      ? SpinKitThreeBounce(color: AppColors.loadingColor, size: 18)
                       : Text(
                           "Create Account",
                           style: AppTextStyles.titleMedium,

@@ -4,7 +4,7 @@ import 'package:near_vibe/core/themes/app_theme.dart';
 import 'package:near_vibe/firebase_options.dart';
 import 'package:near_vibe/providers/auth_provider.dart';
 import 'package:near_vibe/providers/map_providers.dart';
-import 'package:near_vibe/screens/auth/landing_screen.dart';
+import 'package:near_vibe/screens/auth/splash_screen.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -15,8 +15,6 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +28,7 @@ class MyApp extends StatelessWidget {
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
         themeMode: ThemeMode.system,
-        home: LandingScreen(),
+        home: SplashScreen(),
       ),
     );
   }
