@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "759657039101",
+    "project_id": "nearvibe-916ef",
+    "storage_bucket": "nearvibe-916ef.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:759657039101:android:792ac8be7945e867b06a94",
+        "android_client_info": {
+          "package_name": "com.example.near_vibe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCodFc71XwTxUeenEP74sYROghaPek2W3c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
