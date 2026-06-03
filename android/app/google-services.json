@@ -12,7 +12,12 @@
           "package_name": "com.example.near_vibe"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "759657039101-torngvgpsukv3fpbaab6j1i41vae9967.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCodFc71XwTxUeenEP74sYROghaPek2W3c"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "759657039101-torngvgpsukv3fpbaab6j1i41vae9967.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "759657039101-hc63p3i93595e7rdk877kb2ug9upt9n9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.nearVibe"
+              }
+            }
+          ]
         }
       }
     }

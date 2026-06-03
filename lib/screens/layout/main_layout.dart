@@ -7,6 +7,7 @@ import 'package:near_vibe/screens/profile/profile_screen.dart';
 import 'package:near_vibe/screens/saved/saved_events_screen.dart';
 
 class MainLayoutScreen extends StatefulWidget {
+  
   const MainLayoutScreen({super.key});
 
   @override

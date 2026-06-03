@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:near_vibe/core/exceptions/app_exception.dart';
 import 'package:near_vibe/core/responsive/responsive.dart';
 import 'package:near_vibe/core/style/app_text_styles.dart';
+import 'package:near_vibe/core/themes/app_colors.dart';
 import 'package:near_vibe/core/themes/theme_extensions.dart';
 import 'package:near_vibe/core/utils/validators.dart';
 import 'package:near_vibe/core/widgets/app_scaffold.dart';
 import 'package:near_vibe/core/widgets/app_snackbar.dart';
+import 'package:near_vibe/providers/auth_provider.dart';
 import 'package:near_vibe/screens/layout/main_layout.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -22,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
   );
 
   final TextEditingController passwordController = TextEditingController(
-    text: '1234567890',
+    text: 'anandhu',
   );
 
   @override
@@ -32,14 +37,26 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void onLogin() {
+  void onLogin() async {
     if (_formKey.currentState!.validate()) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => MainLayoutScreen()),
-        (route) => false,
-      );
-      AppSnackBar.success(context, "Login Success");
+      try {
+        await context.read<AuthProvider>().login(
+          email: emailController.text.trim(),
+          password: passwordController.text.trim(),
+        );
+
+        if (!mounted) return;
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const MainLayoutScreen()),
+          (route) => false,
+        );
+      } on AppException catch (e) {
+        if (!mounted) return;
+
+        AppSnackBar.error(context, e.message);
+      }
     }
   }
 
@@ -76,9 +93,15 @@ class _LoginScreenState extends State<LoginScreen> {
               decoration: InputDecoration(labelText: "Password"),
             ),
             SizedBox(height: context.res.hmd),
-            ElevatedButton(
-              onPressed: onLogin,
-              child: Text("Login", style: AppTextStyles.titleMedium),
+            Consumer<AuthProvider>(
+              builder: (context, authProvider, _) {
+                return ElevatedButton(
+                  onPressed: onLogin,
+                  child: authProvider.isLoading
+                      ? SpinKitThreeBounce(color: AppColors.whiteText, size: 18)
+                      : Text("Login", style: AppTextStyles.titleMedium),
+                );
+              },
             ),
           ],
         ),

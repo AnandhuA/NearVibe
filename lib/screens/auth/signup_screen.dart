@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:near_vibe/core/exceptions/app_exception.dart';
 import 'package:near_vibe/core/responsive/responsive.dart';
 import 'package:near_vibe/core/style/app_text_styles.dart';
+import 'package:near_vibe/core/themes/app_colors.dart';
 import 'package:near_vibe/core/themes/theme_extensions.dart';
 import 'package:near_vibe/core/utils/validators.dart';
 import 'package:near_vibe/core/widgets/app_scaffold.dart';
 import 'package:near_vibe/core/widgets/app_snackbar.dart';
-import 'package:near_vibe/screens/layout/main_layout.dart';
+import 'package:near_vibe/providers/auth_provider.dart';
+import 'package:near_vibe/screens/auth/login_screen.dart';
+import 'package:provider/provider.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -33,14 +38,22 @@ class _SignupScreenState extends State<SignupScreen> {
     super.dispose();
   }
 
-  void onSignUp() {
+  void onSignUp() async {
     if (_formKey.currentState!.validate()) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => MainLayoutScreen()),
-        (route) => false,
-      );
-      AppSnackBar.success(context, "Login Success");
+      try {
+        await context.read<AuthProvider>().createAccount(
+          email: emailController.text.trim(),
+          password: passwordController.text.trim(),
+        );
+        AppSnackBar.success(context, "Account created");
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => LoginScreen()),
+          (route) => false,
+        );
+      } on AppException catch (e) {
+        AppSnackBar.error(context, e.message);
+      }
     }
   }
 
@@ -95,9 +108,18 @@ class _SignupScreenState extends State<SignupScreen> {
               decoration: InputDecoration(labelText: "ConfirmPassword"),
             ),
             SizedBox(height: context.res.hmd),
-            ElevatedButton(
-              onPressed: onSignUp,
-              child: Text("Create Account", style: AppTextStyles.titleMedium),
+            Consumer<AuthProvider>(
+              builder: (context, authProvider, _) {
+                return ElevatedButton(
+                  onPressed: onSignUp,
+                  child: authProvider.isLoading
+                      ? SpinKitThreeBounce(color: AppColors.whiteText, size: 18)
+                      : Text(
+                          "Create Account",
+                          style: AppTextStyles.titleMedium,
+                        ),
+                );
+              },
             ),
           ],
         ),
