@@ -12,12 +12,13 @@ class AuthProvider extends ChangeNotifier {
   Future<void> createAccount({
     required String email,
     required String password,
+    required String name
   }) async {
     try {
       _isLoading = true;
       notifyListeners();
 
-      await _repository.createAccount(email: email, password: password);
+      await _repository.createAccount(email: email, password: password,name: name);
     } catch (e) {
       throw FirebaseExceptionMapper.map(e);
     } finally {

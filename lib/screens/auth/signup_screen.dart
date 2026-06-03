@@ -44,6 +44,7 @@ class _SignupScreenState extends State<SignupScreen> {
         await context.read<AuthProvider>().createAccount(
           email: emailController.text.trim(),
           password: passwordController.text.trim(),
+          name: nameController.text.trim(),
         );
         AppSnackBar.success(context, "Account created");
         Navigator.pushAndRemoveUntil(
@@ -113,7 +114,10 @@ class _SignupScreenState extends State<SignupScreen> {
                 return ElevatedButton(
                   onPressed: onSignUp,
                   child: authProvider.isLoading
-                      ? SpinKitThreeBounce(color: AppColors.loadingColor, size: 18)
+                      ? SpinKitThreeBounce(
+                          color: AppColors.loadingColor,
+                          size: 18,
+                        )
                       : Text(
                           "Create Account",
                           style: AppTextStyles.titleMedium,
