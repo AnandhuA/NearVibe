@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:near_vibe/core/style/app_text_styles.dart';
-import 'package:near_vibe/core/themes/app_colors.dart';
 import 'package:near_vibe/core/themes/theme_extensions.dart';
+import 'package:near_vibe/widgets/app_loading.dart';
 import 'package:near_vibe/providers/map_providers.dart';
 import 'package:provider/provider.dart';
 
@@ -34,11 +33,7 @@ class _MapScreenState extends State<MapScreen> {
 
     return Scaffold(
       body: provider.isLoading
-          ? const Center(
-              child: SpinKitThreeBounce(
-                color: AppColors.loadingColor,
-                size: 18,
-              ),
+          ? Center(child: threeBounceLoading(context)
             )
           : provider.currentLocation == null
           ? const Center(child: Text("Location not found"))
@@ -292,7 +287,7 @@ class _MapScreenState extends State<MapScreen> {
   // ================= CUSTOM MARKER =================
 
   Marker buildMarker({
-    required point,
+    required dynamic point,
     required Color color,
     bool active = false,
   }) {

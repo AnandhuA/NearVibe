@@ -4,6 +4,7 @@ import 'package:near_vibe/core/themes/app_theme.dart';
 import 'package:near_vibe/firebase_options.dart';
 import 'package:near_vibe/providers/auth_provider.dart';
 import 'package:near_vibe/providers/map_providers.dart';
+import 'package:near_vibe/providers/user_provider.dart';
 import 'package:near_vibe/screens/auth/splash_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => MapProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => UserProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

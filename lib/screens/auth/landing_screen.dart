@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:near_vibe/core/responsive/responsive.dart';
 import 'package:near_vibe/core/style/app_text_styles.dart';
 import 'package:near_vibe/core/themes/theme_extensions.dart';
-import 'package:near_vibe/core/widgets/app_scaffold.dart';
+import 'package:near_vibe/widgets/app_scaffold.dart';
 import 'package:near_vibe/screens/auth/login_screen.dart';
 import 'package:near_vibe/screens/auth/signup_screen.dart';
 

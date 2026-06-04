@@ -7,11 +7,11 @@ import 'package:near_vibe/core/responsive/responsive.dart';
 import 'package:near_vibe/core/style/app_text_styles.dart';
 import 'package:near_vibe/core/themes/theme_extensions.dart';
 import 'package:near_vibe/core/utils/dummy_data.dart';
-import 'package:near_vibe/core/widgets/app_scaffold.dart';
-import 'package:near_vibe/core/widgets/category_widget.dart';
-import 'package:near_vibe/core/widgets/date_time_picker_widget.dart';
-import 'package:near_vibe/core/widgets/location_bottom_sheet_widget.dart';
-import 'package:near_vibe/core/widgets/location_picker_widget.dart';
+import 'package:near_vibe/widgets/app_scaffold.dart';
+import 'package:near_vibe/widgets/category_widget.dart';
+import 'package:near_vibe/widgets/date_time_picker_widget.dart';
+import 'package:near_vibe/widgets/location_bottom_sheet_widget.dart';
+import 'package:near_vibe/widgets/location_picker_widget.dart';
 import 'package:near_vibe/screens/event/picklocation_from_map_screen.dart';
 
 class AddEventScreen extends StatefulWidget {

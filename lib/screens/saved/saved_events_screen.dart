@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:near_vibe/core/responsive/responsive.dart';
 import 'package:near_vibe/core/style/app_text_styles.dart';
 import 'package:near_vibe/core/themes/theme_extensions.dart';
-import 'package:near_vibe/core/widgets/app_scaffold.dart';
+import 'package:near_vibe/widgets/app_scaffold.dart';
 
 class SavedEventsScreen extends StatelessWidget {
   const SavedEventsScreen({super.key});
@@ -28,7 +28,7 @@ class SavedEventsScreen extends StatelessWidget {
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: context.secondary,
+        color: context.primary.withValues(alpha: 0.09),
       ),
       child: Row(
         children: [

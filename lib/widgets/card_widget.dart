@@ -3,7 +3,7 @@ import 'package:near_vibe/core/responsive/responsive.dart';
 import 'package:near_vibe/core/style/app_text_styles.dart';
 import 'package:near_vibe/core/themes/app_colors.dart';
 import 'package:near_vibe/core/themes/theme_extensions.dart';
-import 'package:near_vibe/core/widgets/category_widget.dart';
+import 'package:near_vibe/widgets/category_widget.dart';
 
 class CardWidget extends StatelessWidget {
   const CardWidget({super.key});
@@ -97,6 +97,7 @@ class CardWidget extends StatelessWidget {
             icon: Icons.music_note,
             title: "Music",
             bgColor: context.secondary,
+            titleColor: context.whiteText,
           ),
         ],
       ),
