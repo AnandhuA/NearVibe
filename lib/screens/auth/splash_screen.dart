@@ -4,6 +4,7 @@ import 'package:near_vibe/core/responsive/responsive.dart';
 import 'package:near_vibe/widgets/app_loading.dart';
 import 'package:near_vibe/screens/auth/landing_screen.dart';
 import 'package:near_vibe/screens/layout/main_layout.dart';
+import 'package:near_vibe/widgets/app_scaffold.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -37,8 +38,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
+    return AppScaffold(
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

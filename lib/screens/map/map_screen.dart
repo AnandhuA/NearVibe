@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:near_vibe/core/style/app_text_styles.dart';
-import 'package:near_vibe/core/themes/app_colors.dart';
 import 'package:near_vibe/core/themes/theme_extensions.dart';
 import 'package:near_vibe/providers/map_providers.dart';
 import 'package:near_vibe/widgets/app_loading.dart';
@@ -33,13 +32,13 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
-void _onProviderChange() {
+  void _onProviderChange() {
     if (!mounted) return;
     final provider = context.read<MapProvider>();
 
     if (provider.errorMessage != null) {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      AppSnackBar.error(context, provider.errorMessage ?? "Error");
+      AppSnackBar.warning(context, provider.errorMessage ?? "Error");
 
       provider.clearError();
     }
@@ -95,6 +94,25 @@ log("rebuid");
                     ),
                   ],
                 ),
+
+
+                // ================= SEARCH BAR =================
+                Positioned(
+                  top: provider.isLocationOff
+                      ? 100
+                      : 60, // ← shift down if banner visible
+                  left: 20,
+                  right: 20,
+                  child: TextField(
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(
+                        Icons.location_pin,
+                        color: context.primary,
+                      ),
+                      hintText: "Search",
+                    ),
+                  ),
+                ),
                 if (provider.isLocationOff)
                   Positioned(
                     top: 0,
@@ -111,7 +129,7 @@ log("rebuid");
                           vertical: 10,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.warning,
+                          color: context.warning,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
@@ -147,23 +165,7 @@ log("rebuid");
                     ),
                   ),
 
-                // ================= SEARCH BAR =================
-                Positioned(
-                  top: provider.isLocationOff
-                      ? 100
-                      : 60, // ← shift down if banner visible
-                  left: 20,
-                  right: 20,
-                  child: TextField(
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(
-                        Icons.location_pin,
-                        color: context.primary,
-                      ),
-                      hintText: "Search",
-                    ),
-                  ),
-                ),
+               
                 // ================= BOTTOM SHEET =================
                 DraggableScrollableSheet(
                   initialChildSize: 0.30,

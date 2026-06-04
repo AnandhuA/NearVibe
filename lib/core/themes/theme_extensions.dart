@@ -36,4 +36,6 @@ Color get loadingColor => isDarkMode ? AppColors.darkLoadingColor:AppColors.ligh
   Color get success => AppColors.success;
 
   Color get error => AppColors.error;
+
+  Color get warning => AppColors.warning;
 }
