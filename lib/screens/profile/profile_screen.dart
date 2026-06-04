@@ -10,22 +10,9 @@ import 'package:near_vibe/widgets/app_loading.dart';
 import 'package:near_vibe/widgets/app_scaffold.dart';
 import 'package:provider/provider.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
-  @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
-
-class _ProfileScreenState extends State<ProfileScreen> {
-  @override
-  void initState() {
-    super.initState();
-    // ← Fetch on screen load
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<UserProvider>().fetchCurrentUser();
-    });
-  }
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<UserProvider>();
@@ -115,21 +102,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ],
     );
   }
-}
-
-Widget _buildInitials(BuildContext context, String name) {
-  final initials = name
-      .trim()
-      .split(' ')
-      .where((e) => e.isNotEmpty)
-      .take(2) // ← max 2 letters e.g "AK"
-      .map((e) => e[0].toUpperCase())
-      .join();
-
-  return Text(
-    initials.isNotEmpty ? initials : '?',
-    style: AppTextStyles.headlineLarge,
-  );
 }
 
 class _InfoTile extends StatelessWidget {

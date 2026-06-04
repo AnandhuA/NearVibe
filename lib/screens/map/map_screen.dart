@@ -1,9 +1,13 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:near_vibe/core/style/app_text_styles.dart';
+import 'package:near_vibe/core/themes/app_colors.dart';
 import 'package:near_vibe/core/themes/theme_extensions.dart';
-import 'package:near_vibe/widgets/app_loading.dart';
 import 'package:near_vibe/providers/map_providers.dart';
+import 'package:near_vibe/widgets/app_loading.dart';
+import 'package:near_vibe/widgets/app_snackbar.dart';
 import 'package:provider/provider.dart';
 
 class MapScreen extends StatefulWidget {
@@ -24,13 +28,35 @@ class _MapScreenState extends State<MapScreen> {
       if (!mounted) return;
 
       context.read<MapProvider>().getCurrentLocation();
+     
+      context.read<MapProvider>().addListener(_onProviderChange);
     });
+  }
+
+void _onProviderChange() {
+    if (!mounted) return;
+    final provider = context.read<MapProvider>();
+
+    if (provider.errorMessage != null) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      AppSnackBar.error(context, provider.errorMessage ?? "Error");
+
+      provider.clearError();
+    }
+  }
+
+  @override
+  void dispose() {
+    try {
+      context.read<MapProvider>().removeListener(_onProviderChange);
+    } catch (_) {}
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<MapProvider>();
-
+log("rebuid");
     return Scaffold(
       body: provider.isLoading
           ? Center(child: threeBounceLoading(context)
@@ -69,10 +95,63 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ],
                 ),
+                if (provider.isLocationOff)
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: SafeArea(
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.warning,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.location_off_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                "Showing last known location. Turn on location for live updates.",
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            // ← Tap to retry
+                            GestureDetector(
+                              onTap: () => context
+                                  .read<MapProvider>()
+                                  .getCurrentLocation(),
+                              child: const Icon(
+                                Icons.refresh_rounded,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
 
                 // ================= SEARCH BAR =================
                 Positioned(
-                  top: 60,
+                  top: provider.isLocationOff
+                      ? 100
+                      : 60, // ← shift down if banner visible
                   left: 20,
                   right: 20,
                   child: TextField(
@@ -85,7 +164,6 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ),
                 ),
-
                 // ================= BOTTOM SHEET =================
                 DraggableScrollableSheet(
                   initialChildSize: 0.30,
