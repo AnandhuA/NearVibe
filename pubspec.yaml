@@ -30,6 +30,10 @@ dependencies:
   cached_network_image: ^3.4.1
   avatar_plus: ^0.0.5
   shared_preferences: ^2.5.5
+  firebase_storage: ^13.4.2
+  cloudinary_api: ^1.1.1
+  cloudinary_url_gen: ^1.8.0
+  crypto: ^3.0.7
 
 dev_dependencies:
   flutter_test:

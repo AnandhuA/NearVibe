@@ -38,6 +38,30 @@ class FirebaseExceptionMapper {
       }
     }
 
+      if (error is FirebaseException) {
+      switch (error.code) {
+        case 'permission-denied':
+          return const AppException(
+            'Permission denied',
+          );
+
+        case 'not-found':
+          return const AppException(
+            'Data not found',
+          );
+
+        case 'unavailable':
+          return const AppException(
+            'Service unavailable',
+          );
+
+        default:
+          return AppException(
+            error.message ?? 'Firebase error',
+          );
+      }
+    }
+
     return const AppException(
       'Something went wrong',
     );
