@@ -72,7 +72,7 @@ class _PickLocationFromMapScreenState extends State<PickLocationFromMapScreen> {
             children: [
               TileLayer(
                 urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-                userAgentPackageName: "com.example.app",
+                userAgentPackageName: 'com.nearvibe.app',
               ),
 
               if (selectedLocation != null)

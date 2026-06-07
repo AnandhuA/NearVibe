@@ -4,12 +4,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:near_vibe/core/exceptions/app_exception.dart';
 import 'package:near_vibe/models/user_model.dart';
+import 'package:near_vibe/repositories/local_storage_repository.dart';
 
 import '../repositories/user_repository.dart';
 
 class UserProvider extends ChangeNotifier {
   final UserRepository _repository = UserRepository();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final LocalStorageRepository _localRepository = LocalStorageRepository();
+
   // ================= STATE =================
 
   UserModel? user;
@@ -45,13 +47,28 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final uid = _auth.currentUser?.uid;
+      user = await _localRepository.getUser();
 
-      if (uid == null) {
-        throw const AppException('No user logged in.');
+      if (user == null) {
+        throw const AppException('No local user found.');
       }
+    } on AppException catch (e) {
+      exception = e;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 
-      user = await _repository.getCurrentUser(uid);
+  //============LOAD LOCAL USER DATA =============
+
+  Future<void> loadLocalUser() async {
+    isLoading = true;
+    exception = null;
+    notifyListeners();
+
+    try {
+      user = await _localRepository.getUser();
     } on AppException catch (e) {
       exception = e;
     } finally {

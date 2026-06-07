@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:near_vibe/models/user_model.dart';
 
 class AuthRepository {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -43,4 +44,14 @@ class AuthRepository {
     await _auth.signOut();
   }
 
+
+
+Future<UserModel> getCurrentUser(String uid) async {
+  final doc = await _firestore
+      .collection('users')
+      .doc(uid)
+      .get();
+
+  return UserModel.fromDocument(doc);
+}
 }
