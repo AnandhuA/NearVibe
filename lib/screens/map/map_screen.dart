@@ -1,10 +1,16 @@
-import 'dart:developer';
-
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:near_vibe/core/responsive/responsive.dart';
 import 'package:near_vibe/core/style/app_text_styles.dart';
+import 'package:near_vibe/core/themes/app_colors.dart';
 import 'package:near_vibe/core/themes/theme_extensions.dart';
+import 'package:near_vibe/core/utils/helper_funtions.dart';
+import 'package:near_vibe/models/event_model.dart';
+import 'package:near_vibe/providers/event_provider.dart';
 import 'package:near_vibe/providers/map_providers.dart';
+import 'package:near_vibe/screens/event/event_details_screen.dart';
 import 'package:near_vibe/widgets/app_loading.dart';
 import 'package:near_vibe/widgets/app_snackbar.dart';
 import 'package:provider/provider.dart';
@@ -27,7 +33,7 @@ class _MapScreenState extends State<MapScreen> {
       if (!mounted) return;
 
       context.read<MapProvider>().getCurrentLocation();
-     
+
       context.read<MapProvider>().addListener(_onProviderChange);
     });
   }
@@ -55,11 +61,20 @@ class _MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<MapProvider>();
-log("rebuid");
+    final events = context.watch<EventProvider>().events;
+    // final selectedEvent = context.watch<MapProvider>().selectedEvent;
+    final selectedEvent = provider.selectedEvent;
+
+    Offset? markerOffset;
+
+    if (selectedEvent != null) {
+      markerOffset = mapController.camera.latLngToScreenOffset(
+        LatLng(selectedEvent.latitude, selectedEvent.longitude),
+      );
+    }
     return Scaffold(
       body: provider.isLoading
-          ? Center(child: threeBounceLoading(context)
-            )
+          ? Center(child: threeBounceLoading(context))
           : provider.currentLocation == null
           ? const Center(child: Text("Location not found"))
           : Stack(
@@ -71,6 +86,9 @@ log("rebuid");
                   options: MapOptions(
                     initialCenter: provider.currentLocation!,
                     initialZoom: 15,
+                    onTap: (_, _) {
+                      context.read<MapProvider>().clearSelectedEvent();
+                    },
                   ),
 
                   children: [
@@ -85,16 +103,32 @@ log("rebuid");
                     // ================= MARKERS =================
                     MarkerLayer(
                       markers: [
+                        // User location
                         buildMarker(
                           point: provider.currentLocation!,
                           color: context.primary,
                           active: true,
                         ),
+
+                        // Event markers
+                        ...events.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final event = entry.value;
+
+                          return buildMarker(
+                            point: LatLng(event.latitude, event.longitude),
+                            color:
+                                AppColors.markerColors[index %
+                                    AppColors.markerColors.length],
+                            onTap: () {
+                              context.read<MapProvider>().selectEvent(event);
+                            },
+                          );
+                        }),
                       ],
                     ),
                   ],
                 ),
-
 
                 // ================= SEARCH BAR =================
                 Positioned(
@@ -165,7 +199,86 @@ log("rebuid");
                     ),
                   ),
 
-               
+                //==============event detail =========
+                if (selectedEvent != null && markerOffset != null)
+                  Positioned(
+                    left: markerOffset.dx - 120,
+                    top: markerOffset.dy - 120,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                EventDetailsScreen(event: selectedEvent),
+                          ),
+                        );
+                      },
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Container(
+                          width: context.res.w(0.6),
+                          height: context.res.h(0.1),
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: context.background,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                blurRadius: 10,
+                                color: Colors.black.withValues(alpha: .15),
+                              ),
+                            ],
+                          ),
+
+                          child: Row(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Hero(
+                                  tag: 'event_${selectedEvent.id}',
+                                  child: CachedNetworkImage(
+                                    imageUrl: selectedEvent.imageUrl,
+                                    width: 70,
+                                    height: 70,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+
+                              SizedBox(width: context.res.wsm),
+
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      selectedEvent.title,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+
+                                    Text(
+                                      selectedEvent.category,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+
+                                    Text(
+                                      formatEventDateWithoutYear(
+                                        selectedEvent.eventDate,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 // ================= BOTTOM SHEET =================
                 DraggableScrollableSheet(
                   initialChildSize: 0.30,
@@ -204,7 +317,7 @@ log("rebuid");
                           const SizedBox(height: 24),
 
                           Text(
-                            "12 Events Nearby",
+                            "${events.length} Events Nearby",
                             style: AppTextStyles.headlineSmall.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
@@ -216,14 +329,15 @@ log("rebuid");
                             child: ListView.separated(
                               controller: scrollController,
 
-                              itemCount: 10,
+                              itemCount: events.length,
 
                               separatorBuilder: (context, index) {
                                 return const SizedBox(height: 16);
                               },
 
                               itemBuilder: (context, index) {
-                                return eventCard(context);
+                                final EventModel event = events[index];
+                                return eventCard(context, event);
                               },
                             ),
                           ),
@@ -239,127 +353,170 @@ log("rebuid");
 
   // ================= EVENT CARD =================
 
-  Widget eventCard(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
+  Widget eventCard(BuildContext context, EventModel event) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => EventDetailsScreen(event: event)),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
 
-      decoration: BoxDecoration(
-        color: context.isDarkMode ? const Color(0xFF1C1C28) : Colors.white,
+        decoration: BoxDecoration(
+          color: context.isDarkMode ? const Color(0xFF1C1C28) : Colors.white,
 
-        borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(22),
 
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-          ),
-        ],
-      ),
-
-      child: Row(
-        children: [
-          // ================= IMAGE =================
-          Container(
-            width: 90,
-            height: 90,
-
-            decoration: BoxDecoration(
-              color: context.primary,
-              borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 10,
             ),
-          ),
+          ],
+        ),
 
-          const SizedBox(width: 16),
+        child: Row(
+          children: [
+            // ================= IMAGE =================
+            ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: Hero(
+                tag: 'event_${event.id}',
+                child: CachedNetworkImage(
+                  imageUrl: event.imageUrl,
+                  height: 90,
 
-          // ================= DETAILS =================
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+                  width: 90,
+                  fit: BoxFit.cover,
 
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-
-                      decoration: BoxDecoration(
-                        color: context.primary.withValues(alpha: 0.12),
-
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-
-                      child: Text(
-                        "Music",
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: context.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                  placeholder: (context, url) => Container(
+                    height: 90,
+                    width: 90,
+                    alignment: Alignment.center,
+                    decoration: const BoxDecoration(
+                      gradient: AppColors.primaryGradient,
                     ),
+                    child: const CircularProgressIndicator(),
+                  ),
 
-                    const Spacer(),
-
-                    Icon(Icons.bookmark_border_rounded, color: context.hitText),
-                  ],
-                ),
-
-                const SizedBox(height: 12),
-
-                Text(
-                  "Indie Night Festival",
-                  style: AppTextStyles.titleMedium.copyWith(
-                    fontWeight: FontWeight.bold,
+                  errorWidget: (context, url, error) => Container(
+                    height: 90,
+                    width: 90,
+                    alignment: Alignment.center,
+                    decoration: const BoxDecoration(
+                      gradient: AppColors.primaryGradient,
+                    ),
+                    child: const Icon(Icons.broken_image_rounded, size: 50),
                   ),
                 ),
-
-                const SizedBox(height: 8),
-
-                Row(
-                  children: [
-                    Icon(
-                      Icons.location_on_rounded,
-                      size: 18,
-                      color: context.hitText,
-                    ),
-
-                    const SizedBox(width: 6),
-
-                    Text(
-                      "Kakkanad • 0.5 km",
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: context.hitText,
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 6),
-
-                Row(
-                  children: [
-                    Icon(
-                      Icons.access_time_rounded,
-                      size: 18,
-                      color: context.hitText,
-                    ),
-
-                    const SizedBox(width: 6),
-
-                    Text(
-                      "Today • 7:30 PM",
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: context.hitText,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+              ),
             ),
-          ),
-        ],
+
+            const SizedBox(width: 16),
+
+            // ================= DETAILS =================
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+
+                        decoration: BoxDecoration(
+                          color: context.primary.withValues(alpha: 0.12),
+
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+
+                        child: Text(
+                          event.category,
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: context.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+
+                      const Spacer(),
+
+                      Icon(getIcon(event.category), color: context.hitText),
+                    ],
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  Text(
+                    event.title,
+                    style: AppTextStyles.titleMedium.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.location_on_rounded,
+                        size: 18,
+                        color: context.hitText,
+                      ),
+
+                      const SizedBox(width: 6),
+
+                      FutureBuilder<String>(
+                        future: getAddressFromLatLng(
+                          event.latitude,
+                          event.longitude,
+                        ),
+                        builder: (context, snapshot) {
+                          return Expanded(
+                            child: Text(
+                              snapshot.data ?? "Loading...",
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                color: context.hitText,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 6),
+
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.access_time_rounded,
+                        size: 18,
+                        color: context.hitText,
+                      ),
+
+                      const SizedBox(width: 6),
+
+                      Text(
+                        formatEventDate(event.eventDate),
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: context.hitText,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -367,21 +524,62 @@ log("rebuid");
   // ================= CUSTOM MARKER =================
 
   Marker buildMarker({
-    required dynamic point,
+    required LatLng point,
     required Color color,
     bool active = false,
+    VoidCallback? onTap,
   }) {
     return Marker(
       point: point,
-
       width: 60,
       height: 60,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            if (!active)
+              Icon(
+                Icons.location_on_rounded,
+                color: color,
+                size: active ? 52 : 44,
+              ),
 
-      child: Icon(
-        Icons.location_on_rounded,
-        color: color,
-        size: active ? 50 : 42,
+            if (active) Icon(Icons.my_location, color: color, size: 14),
+          ],
+        ),
       ),
+    );
+  }
+
+  //======ON TAP ON MARKER ====
+  void showEventDetails(EventModel event) {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(event.title, style: AppTextStyles.headlineSmall),
+
+              const SizedBox(height: 10),
+
+              Text(event.description),
+
+              const SizedBox(height: 10),
+
+              Text("Category: ${event.category}"),
+
+              Text("Created By: ${event.creatorName}"),
+
+              Text(event.eventDate.toString()),
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -9,6 +9,7 @@ import 'package:near_vibe/models/event_model.dart';
 import 'package:near_vibe/models/user_model.dart';
 import 'package:near_vibe/providers/event_provider.dart';
 import 'package:near_vibe/providers/user_provider.dart';
+import 'package:near_vibe/screens/event/event_details_screen.dart';
 import 'package:near_vibe/widgets/app_loading.dart';
 import 'package:near_vibe/widgets/app_scaffold.dart';
 import 'package:near_vibe/widgets/card_widget.dart';
@@ -123,7 +124,15 @@ class _HomeScreenState extends State<HomeScreen> {
               itemBuilder: (context, index) {
                 final event = events[index];
 
-                return CardWidget(event: event);
+                return GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EventDetailsScreen(event: event),
+                    ),
+                  ),
+                  child: CardWidget(event: event),
+                );
               },
             ),
         ],

@@ -26,48 +26,36 @@ class CardWidget extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Event Image
-              // Container(
-              //   height: 180,
-
-              //   decoration: BoxDecoration(
-              //     gradient: AppColors.primaryGradient,
-              //     borderRadius: const BorderRadius.vertical(
-              //       top: Radius.circular(20),
-              //     ),
-              //     image: DecorationImage(
-
-              //       image: CachedNetworkImageProvider(event.imageUrl),
-              //       fit: BoxFit.cover,
-              //     ),
-              //   ),
-              // ),
+              
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(20),
                 ),
-                child: CachedNetworkImage(
-                  imageUrl: event.imageUrl,
-                  height: 180,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-
-                  placeholder: (context, url) => Container(
+                child: Hero(
+                  tag: 'event_${event.id}',
+                  child: CachedNetworkImage(
+                    imageUrl: event.imageUrl,
                     height: 180,
-                    alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                      gradient: AppColors.primaryGradient,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  
+                    placeholder: (context, url) => Container(
+                      height: 180,
+                      alignment: Alignment.center,
+                      decoration: const BoxDecoration(
+                        gradient: AppColors.primaryGradient,
+                      ),
+                      child: const CircularProgressIndicator(),
                     ),
-                    child: const CircularProgressIndicator(),
-                  ),
-
-                  errorWidget: (context, url, error) => Container(
-                    height: 180,
-                    alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                      gradient: AppColors.primaryGradient,
+                  
+                    errorWidget: (context, url, error) => Container(
+                      height: 180,
+                      alignment: Alignment.center,
+                      decoration: const BoxDecoration(
+                        gradient: AppColors.primaryGradient,
+                      ),
+                      child: const Icon(Icons.broken_image_rounded, size: 50),
                     ),
-                    child: const Icon(Icons.broken_image_rounded, size: 50),
                   ),
                 ),
               ),

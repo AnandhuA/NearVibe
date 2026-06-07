@@ -56,6 +56,28 @@ String formatEventDate(DateTime eventDate) {
   return '${DateFormat('dd MMM yyyy').format(eventDate)} • $time';
 }
 
+String formatEventDateWithoutYear(DateTime eventDate) {
+  final now = DateTime.now();
+
+  final today = DateTime(now.year, now.month, now.day);
+
+  final tomorrow = today.add(const Duration(days: 1));
+
+  final eventDay = DateTime(eventDate.year, eventDate.month, eventDate.day);
+
+  final time = DateFormat('h:mm a').format(eventDate);
+
+  if (eventDay == today) {
+    return 'Today • $time';
+  }
+
+  if (eventDay == tomorrow) {
+    return 'Tomorrow • $time';
+  }
+
+  return '${DateFormat('dd MMM').format(eventDate)} • $time';
+}
+
 IconData getIcon(String category) {
   switch (category.toLowerCase()) {
     case 'music':

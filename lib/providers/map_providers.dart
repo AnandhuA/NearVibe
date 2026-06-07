@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
+import 'package:near_vibe/models/event_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MapProvider extends ChangeNotifier {
@@ -15,8 +16,12 @@ class MapProvider extends ChangeNotifier {
   static const String _latKey = 'cached_lat';
   static const String _lngKey = 'cached_lng';
   bool isLocationOff = false;
+  EventModel? _selectedEvent;
+  EventModel? get selectedEvent => _selectedEvent;
 
-
+  LatLng? get selectedEventLocation => _selectedEvent == null
+      ? null
+      : LatLng(_selectedEvent!.latitude, _selectedEvent!.longitude);
 
   // ================= INIT PREFS ONCE =================
 
@@ -36,17 +41,13 @@ class MapProvider extends ChangeNotifier {
     }
   }
 
-
   Future<void> _cacheLocation(LatLng location) async {
     await _initPrefs();
     await _prefs!.setDouble(_latKey, location.latitude);
     await _prefs!.setDouble(_lngKey, location.longitude);
   }
 
-
   Future<void> getCurrentLocation() async {
-
-
     isLocationOff = false;
     errorMessage = null;
 
@@ -57,7 +58,7 @@ class MapProvider extends ChangeNotifier {
       isLoading = true;
       notifyListeners();
     }
-      
+
     // ================= CHECK SERVICE =================
 
     bool serviceEnabled = await _location.serviceEnabled();
@@ -67,7 +68,7 @@ class MapProvider extends ChangeNotifier {
       serviceEnabled = await _location.requestService();
 
       if (!serviceEnabled) {
-        isLocationOff = true;    
+        isLocationOff = true;
         errorMessage = 'Location service is disabled.';
         isLoading = false;
         notifyListeners();
@@ -109,12 +110,22 @@ class MapProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  //=====
+  void selectEvent(EventModel event) {
+    _selectedEvent = event;
+    notifyListeners();
+  }
+
+  //============
+  void clearSelectedEvent() {
+    _selectedEvent = null;
+    notifyListeners();
+  }
 
   // ================= CLEAR ERROR =================
 
-void clearError() {
-  errorMessage = null;
-  notifyListeners();
-}
- 
+  void clearError() {
+    errorMessage = null;
+    notifyListeners();
+  }
 }
