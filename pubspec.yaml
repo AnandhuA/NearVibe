@@ -35,6 +35,7 @@ dependencies:
   cloudinary_url_gen: ^1.8.0
   crypto: ^3.0.7
   geoflutterfire_plus: ^0.0.34
+  geocoding: ^4.0.0
 
 dev_dependencies:
   flutter_test:

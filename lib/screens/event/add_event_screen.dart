@@ -93,6 +93,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
               validator: AppValidator.isRequired,
               decoration: InputDecoration(hintText: "Add Description"),
               controller: descriptionController,
+              maxLines: 3,
             ),
             Text("Category", style: AppTextStyles.titleMedium),
             Wrap(
@@ -235,9 +236,23 @@ class _AddEventScreenState extends State<AddEventScreen> {
         // Navigator.pop(context);
       } catch (e) {
         if (!mounted) return;
+        clearForm();
 
         AppSnackBar.error(context, e.toString());
       }
     }
+  }
+
+  void clearForm() {
+    titleController.clear();
+    descriptionController.clear();
+
+    setState(() {
+      selectedImage = null;
+      selectedLatLng = null;
+      selectedLocation = null;
+      selectedDate = null;
+      selectedCategory = "Music";
+    });
   }
 }

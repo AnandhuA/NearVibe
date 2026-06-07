@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -19,12 +21,18 @@ class EventProvider extends ChangeNotifier {
     this.localStorageRepository,
   );
 
+  List<EventModel> _events = [];
+
+  List<EventModel> get events => _events;
   bool _isLoading = false;
   String? _error;
 
   bool get isLoading => _isLoading;
   String? get error => _error;
 
+  StreamSubscription? _eventSubscription;
+
+  //=== CREATE EVENT ==========
   Future<void> createEvent({
     // required EventModel event,
     required String title,
@@ -73,5 +81,37 @@ class EventProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  //=====GET ALL EVENTS ============
+
+  Future<void> fetchEvents() async {
+    log("work");
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      _eventSubscription?.cancel();
+
+      _eventSubscription = repository.getEvents().listen((events) {
+        _events = events;
+
+        _isLoading = false;
+
+        notifyListeners();
+      });
+    } catch (e) {
+      _error = e.toString();
+
+      _isLoading = false;
+
+      notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    _eventSubscription?.cancel();
+    super.dispose();
   }
 }

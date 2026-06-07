@@ -16,6 +16,8 @@ class EventRepository {
        storage = storage ?? FirebaseStorage.instance;
 
 
+
+//====ADD EVENT =======
   Future<void> addEvent(EventModel event) async {
     try {
       await firestore.collection('events').add(event.toMap());
@@ -24,6 +26,27 @@ class EventRepository {
     }
   }
 
+  //=====GET ALL EVENTS====
+   Stream<List<EventModel>> getEvents() {
+    return firestore
+        .collection('events')
+        .orderBy(
+          'eventDate',
+          descending: false,
+        )
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map(
+                (doc) => EventModel.fromDocument(
+                  doc,
+                ),
+              )
+              .toList(),
+        );
+  }
+
+//== UPLOAD IMAGE ======
   Future<String> uploadEventImage(File imageFile) async {
     final fileName = DateTime.now().millisecondsSinceEpoch.toString();
 
