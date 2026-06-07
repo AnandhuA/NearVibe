@@ -120,22 +120,6 @@ class EventDetailsScreen extends StatelessWidget {
                     event.description,
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
-                  Text(
-                    event.description,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                  Text(
-                    event.description,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                  Text(
-                    event.description,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                  Text(
-                    event.description,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
 
                   const SizedBox(height: 40),
                 ],
