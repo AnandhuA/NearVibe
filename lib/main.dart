@@ -9,7 +9,7 @@ import 'package:near_vibe/providers/user_provider.dart';
 import 'package:near_vibe/repositories/event_repository.dart';
 import 'package:near_vibe/repositories/local_storage_repository.dart';
 import 'package:near_vibe/repositories/upload_repository.dart';
-import 'package:near_vibe/screens/auth/splash_screen.dart';
+import 'package:near_vibe/screens/onboarding/splash_screen.dart';
 import 'package:provider/provider.dart';
 
 void main() async {

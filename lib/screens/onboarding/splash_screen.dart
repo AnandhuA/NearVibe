@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:near_vibe/core/responsive/responsive.dart';
+import 'package:near_vibe/screens/onboarding/landing_screen.dart';
 import 'package:near_vibe/widgets/app_loading.dart';
-import 'package:near_vibe/screens/auth/landing_screen.dart';
 import 'package:near_vibe/screens/layout/main_layout.dart';
 import 'package:near_vibe/widgets/app_scaffold.dart';
 
