@@ -32,6 +32,17 @@ class EventProvider extends ChangeNotifier {
 
   StreamSubscription? _eventSubscription;
 
+  List<EventModel> _savedEvents = [];
+  final Set<String> _savedEventIds = {};
+
+  List<EventModel> get savedEvents => _savedEvents;
+
+  StreamSubscription? _savedEventSubscription;
+
+  bool isEventSaved(String eventId) {
+    return _savedEventIds.contains(eventId);
+  }
+
   //=== CREATE EVENT ==========
   Future<void> createEvent({
     // required EventModel event,
@@ -86,7 +97,6 @@ class EventProvider extends ChangeNotifier {
   //=====GET ALL EVENTS ============
 
   Future<void> fetchEvents() async {
-    log("work");
     _isLoading = true;
     notifyListeners();
 
@@ -109,9 +119,74 @@ class EventProvider extends ChangeNotifier {
     }
   }
 
+  //===== ADD SAVED EVENT =====
+  Future<void> saveEvent(String eventId) async {
+    try {
+      final user = await localStorageRepository.getUser();
+      log("$user");
+      if (user == null) return;
+
+      await repository.saveEvent(userId: user.id, eventId: eventId);
+      _savedEventIds.add(eventId);
+    } catch (e) {
+      _error = e.toString();
+
+      notifyListeners();
+    }
+  }
+
+  //==== REMOVE SAVED EVENT ====
+  Future<void> unsaveEvent(String eventId) async {
+    log("unsave work ");
+    try {
+      final user = await localStorageRepository.getUser();
+
+      if (user == null) return;
+
+      await repository.removeSavedEvent(userId: user.id, eventId: eventId);
+      _savedEventIds.remove(eventId);
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+    }
+  }
+
+  //=== FETCH ALL SAVED EVENTS =====
+  Future<void> fetchSavedEvents() async {
+    try {
+      final user = await localStorageRepository.getUser();
+
+      if (user == null) return;
+
+      _savedEventSubscription?.cancel();
+
+      _savedEventSubscription = repository.getSavedEvents(user.id).listen((
+        events,
+      ) {
+        _savedEvents = events;
+        _savedEventIds.clear();
+
+        _savedEventIds.addAll(events.map((e) => e.id));
+
+        notifyListeners();
+      });
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+    }
+  }
+
+
+//===CLEAR ERROR ===
+  void clearError() {
+  _error = null;
+  notifyListeners();
+}
+
   @override
   void dispose() {
     _eventSubscription?.cancel();
+    _savedEventSubscription?.cancel();
     super.dispose();
   }
 }

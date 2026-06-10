@@ -1,127 +1,118 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:near_vibe/core/responsive/responsive.dart';
 import 'package:near_vibe/core/style/app_text_styles.dart';
 import 'package:near_vibe/core/themes/theme_extensions.dart';
 import 'package:near_vibe/core/utils/helper_funtions.dart';
 import 'package:near_vibe/models/event_model.dart';
+import 'package:near_vibe/providers/event_provider.dart';
 import 'package:near_vibe/widgets/app_scaffold.dart';
+import 'package:near_vibe/widgets/app_snackbar.dart';
+import 'package:provider/provider.dart';
 
-class EventDetailsScreen extends StatelessWidget {
+class EventDetailsScreen extends StatefulWidget {
   final EventModel event;
 
   const EventDetailsScreen({super.key, required this.event});
 
   @override
+  State<EventDetailsScreen> createState() => _EventDetailsScreenState();
+}
+
+class _EventDetailsScreenState extends State<EventDetailsScreen> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _scrollController.addListener(() {
+      setState(() {});
+    });
+    Future.microtask(() {
+      final provider = context.read<EventProvider>();
+
+      provider.addListener(() {
+        if (provider.error != null) {
+          AppSnackBar.error(context, provider.error!);
+
+          provider.clearError();
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final event = widget.event;
+
     return AppScaffold(
       child: CustomScrollView(
+        controller: _scrollController,
         slivers: [
-          SliverAppBar(
-            expandedHeight: 320,
+          SliverPersistentHeader(
             pinned: true,
 
-            leading: IconButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: const Icon(Icons.arrow_back_ios_new),
-            ),
-
-            flexibleSpace: FlexibleSpaceBar(
-              background: Hero(
-                tag: 'event_${event.id}',
-                child: CachedNetworkImage(
-                  imageUrl: event.imageUrl,
-                  fit: BoxFit.cover,
-
-                  placeholder: (_, _) =>
-                      const Center(child: CircularProgressIndicator()),
-
-                  errorWidget: (_, _, _) =>
-                      const Icon(Icons.broken_image, size: 50),
-                ),
-              ),
-            ),
+            delegate: EventHeaderDelegate(event),
           ),
-
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(10),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    event.title,
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-
-                  const SizedBox(height: 8),
-
                   Row(
                     children: [
-                      const Icon(Icons.category, size: 18),
-
-                      const SizedBox(width: 6),
-
-                      Text(
-                        event.category,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
+                      Icon(getIcon(event.category), size: 18),
+                      SizedBox(width: context.res.wxs),
+                      Text(event.category),
                     ],
                   ),
-
-                  const SizedBox(height: 12),
-
+                  SizedBox(height: context.res.hxs),
                   Row(
                     children: [
                       const Icon(Icons.person, size: 18),
-
-                      const SizedBox(width: 6),
-
+                      SizedBox(width: context.res.wxs),
                       Expanded(child: Text(event.creatorName)),
                     ],
                   ),
-
-                  const SizedBox(height: 12),
-
+                  SizedBox(height: context.res.hxs),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Icon(Icons.location_on, size: 18),
-
-                      const SizedBox(width: 6),
-
-                      FutureBuilder<String>(
-                        future: getAddressFromLatLng(
-                          event.latitude,
-                          event.longitude,
+                      SizedBox(width: context.res.wxs),
+                      Expanded(
+                        child: FutureBuilder<String>(
+                          future: getAddressFromLatLng(
+                            event.latitude,
+                            event.longitude,
+                          ),
+                          builder: (context, snapshot) {
+                            return Text(
+                              snapshot.data ?? 'Loading location...',
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                color: context.hitText,
+                              ),
+                            );
+                          },
                         ),
-                        builder: (context, snapshot) {
-                          return Text(
-                            snapshot.data ?? "Loading...",
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              color: context.hitText,
-                            ),
-                          );
-                        },
                       ),
                     ],
                   ),
+                  SizedBox(height: context.res.hsm),
+                  Text('About Event', style: AppTextStyles.titleLarge),
+                  SizedBox(height: context.res.hsm),
+                  Text(event.description, style: AppTextStyles.bodyLarge),
 
-                  const SizedBox(height: 24),
-
-                  Text(
-                    "About Event",
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  Text(
-                    event.description,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-
-                  const SizedBox(height: 40),
+                  SizedBox(height: context.res.hsm),
+                  // ElevatedButton(onPressed: () {}, child: Text("Save")),
                 ],
               ),
             ),
@@ -129,5 +120,148 @@ class EventDetailsScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class EventHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final EventModel event;
+
+  EventHeaderDelegate(this.event);
+
+  @override
+  double get minExtent => kToolbarHeight + 20;
+
+  @override
+  double get maxExtent => 320;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    final progress = (1 - (shrinkOffset / (maxExtent - minExtent))).clamp(
+      0.0,
+      1.0,
+    );
+
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    final topPadding = MediaQuery.of(context).padding.top;
+
+    // Image Animation
+    final imageWidth = 40 + ((screenWidth - 20) - 40) * progress;
+
+    final imageHeight = 40 + (220 - 40) * progress;
+
+    final imageLeft = 52 * (1 - progress);
+
+    final imageTop = topPadding + 8 + (50 - 8) * progress;
+
+    // Title Animation
+    final titleLeft = 96 + (20 - 96) * progress;
+
+    final titleTop =
+        (topPadding + 18) +
+        ((imageTop + imageHeight + 12) - (topPadding + 18)) * progress;
+
+    return Container(
+      color: Color.lerp(
+        Theme.of(context).scaffoldBackgroundColor,
+        Colors.transparent,
+        progress,
+      ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // IMAGE
+          Positioned(
+            left: imageLeft,
+            top: imageTop,
+            child: Hero(
+              tag: 'event_${event.id}',
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8 + (12 * progress)),
+                child: CachedNetworkImage(
+                  imageUrl: event.imageUrl,
+                  width: imageWidth,
+                  height: imageHeight,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ),
+
+          // BACK BUTTON
+          Positioned(
+            left: 4,
+            top: topPadding + 4,
+            child: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.arrow_back_ios_new),
+            ),
+          ),
+
+          // TITLE
+          Positioned(
+            left: titleLeft,
+            top: titleTop,
+            child: SizedBox(
+              width: screenWidth - 150,
+              child: Text(
+                event.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: progress < .3
+                    ? AppTextStyles.titleLarge
+                    : AppTextStyles.headlineLarge,
+              ),
+            ),
+          ),
+
+          // SAVE BUTTON
+          Positioned(
+            right: 4,
+            top: topPadding + 4,
+            child: Consumer<EventProvider>(
+              builder: (context, provider, _) {
+                final isSaved = provider.isEventSaved(event.id);
+
+                return IconButton(
+                  onPressed: () async {
+                    if (isSaved) {
+                      await provider.unsaveEvent(event.id);
+                    } else {
+                      await provider.saveEvent(event.id);
+                    }
+                  },
+
+                  icon: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+
+                    child: Icon(
+                      isSaved
+                          ? Icons.bookmark_rounded
+                          : Icons.bookmark_border_rounded,
+
+                      key: ValueKey(isSaved),
+
+                      color: isSaved
+                          ? Theme.of(context).colorScheme.primary
+                          : null,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(covariant EventHeaderDelegate oldDelegate) {
+    return true;
   }
 }
