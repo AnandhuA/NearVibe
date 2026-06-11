@@ -9,6 +9,7 @@ import 'package:near_vibe/providers/event_provider.dart';
 import 'package:near_vibe/widgets/app_scaffold.dart';
 import 'package:near_vibe/widgets/app_snackbar.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class EventDetailsScreen extends StatefulWidget {
   final EventModel event;
@@ -112,7 +113,10 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   Text(event.description, style: AppTextStyles.bodyLarge),
 
                   SizedBox(height: context.res.hsm),
-                  // ElevatedButton(onPressed: () {}, child: Text("Save")),
+                  ElevatedButton(
+                    onPressed: _openGoogleMaps,
+                    child: Text("View on Google Maps"),
+                  ),
                 ],
               ),
             ),
@@ -120,6 +124,25 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _openGoogleMaps() async {
+    final double lat = widget.event.latitude;
+    final double lng = widget.event.longitude;
+
+    // Try native Google Maps app first
+    final nativeUri = Uri.parse('geo:$lat,$lng?q=$lat,$lng');
+    final webUri = Uri.parse(
+      'https://www.google.com/maps/search/?api=1&query=$lat,$lng',
+    );
+
+    if (await canLaunchUrl(nativeUri)) {
+      await launchUrl(nativeUri);
+    } else if (await canLaunchUrl(webUri)) {
+      await launchUrl(webUri, mode: LaunchMode.externalApplication);
+    } else {
+      if (mounted) AppSnackBar.error(context, "Could not open Google Maps");
+    }
   }
 }
 
