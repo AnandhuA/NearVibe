@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:near_vibe/core/responsive/responsive.dart';
 import 'package:near_vibe/repositories/local_storage_repository.dart';
-import 'package:near_vibe/screens/auth/login_screen.dart';
+import 'package:near_vibe/screens/onboarding/landing_screen.dart';
 import 'package:near_vibe/widgets/app_loading.dart';
 import 'package:near_vibe/screens/layout/main_layout.dart';
 import 'package:near_vibe/widgets/app_scaffold.dart';
@@ -32,7 +32,7 @@ class _SplashScreenState extends State<SplashScreen> {
       context,
       MaterialPageRoute(
         builder: (_) =>
-            user != null ? const MainLayoutScreen() : const LoginScreen(),
+            user != null ? const MainLayoutScreen() : const LandingScreen(),
       ),
     );
   }
