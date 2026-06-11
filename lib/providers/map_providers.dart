@@ -131,7 +131,7 @@ class MapProvider extends ChangeNotifier {
 
 
 //=====LOCATION SEARCH =====
-  Future<void> searchLocation(String query) async {
+  Future<void> searchLocation(String query,) async {
     if (query.trim().isEmpty) {
       searchResults = [];
       notifyListeners();

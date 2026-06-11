@@ -7,15 +7,17 @@ import 'package:near_vibe/core/responsive/responsive.dart';
 import 'package:near_vibe/core/style/app_text_styles.dart';
 import 'package:near_vibe/core/themes/theme_extensions.dart';
 import 'package:near_vibe/core/utils/dummy_data.dart';
+import 'package:near_vibe/core/utils/helper_funtions.dart';
 import 'package:near_vibe/core/utils/validators.dart';
 import 'package:near_vibe/providers/event_provider.dart';
+import 'package:near_vibe/providers/map_providers.dart';
+import 'package:near_vibe/screens/event/picklocation_from_map_screen.dart';
 import 'package:near_vibe/widgets/app_scaffold.dart';
 import 'package:near_vibe/widgets/app_snackbar.dart';
 import 'package:near_vibe/widgets/category_widget.dart';
 import 'package:near_vibe/widgets/date_time_picker_widget.dart';
 import 'package:near_vibe/widgets/location_bottom_sheet_widget.dart';
 import 'package:near_vibe/widgets/location_picker_widget.dart';
-import 'package:near_vibe/screens/event/picklocation_from_map_screen.dart';
 import 'package:provider/provider.dart';
 
 class AddEventScreen extends StatefulWidget {
@@ -144,10 +146,30 @@ class _AddEventScreenState extends State<AddEventScreen> {
                           bottom: MediaQuery.of(context).viewInsets.bottom,
                         ),
                         child: LocationBottomSheet(
-                          onLocationSelected: (location) {
-                            setState(() {
-                              selectedLocation = location;
-                            });
+                          onLocationSelected: (location) async {
+                            final provider = context.read<MapProvider>();
+                            await provider.getCurrentLocation();
+                            if (provider.currentLocation != null) {
+                              final latLng = provider.currentLocation!;
+                              final address = await getAddressFromLatLng(
+                                latLng.latitude,
+                                latLng.longitude,
+                              );
+                              setState(() {
+                                selectedLatLng = latLng;
+                                selectedLocation = address;
+                              });
+                            } else {
+                              setState(() {
+                                selectedLocation = location;
+                              });
+                              if (mounted) {
+                                AppSnackBar.warning(
+                                  context,
+                                  "Enable location permission to use current location",
+                                );
+                              }
+                            }
                           },
                           onPickFromMap: () async {
                             final LatLng? result = await Navigator.push(
@@ -157,12 +179,17 @@ class _AddEventScreenState extends State<AddEventScreen> {
                                     const PickLocationFromMapScreen(),
                               ),
                             );
-
                             if (result != null) {
-                              setState(() {
-                                selectedLatLng = result;
+                              selectedLatLng = result;
                                 selectedLocation =
                                     "${result.latitude}, ${result.longitude}";
+                              selectedLatLng = result;
+                              final address = await getAddressFromLatLng(
+                                result.latitude,
+                                result.longitude,
+                              );
+                              setState(() {
+                                selectedLocation = address;
                               });
                             }
                           },
