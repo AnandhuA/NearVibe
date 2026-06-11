@@ -48,19 +48,31 @@ class EventRepository {
   //===ADD SAVEDEVENT ======
   Future<void> saveEvent({
     required String userId,
+    required String userName,
     required String eventId,
   }) async {
     try {
-      await firestore.collection('saved_events').add({
+      final batch = firestore.batch();
+
+      // saved_events collection
+      final savedRef = firestore.collection('saved_events').doc();
+
+      batch.set(savedRef, {
         'userId': userId,
         'eventId': eventId,
         'savedAt': FieldValue.serverTimestamp(),
       });
+
+      // update event document
+      final eventRef = firestore.collection('events').doc(eventId);
+
+      batch.update(eventRef, {'savedUsers.$userId': userName});
+
+      await batch.commit();
     } catch (e) {
       throw FirebaseExceptionMapper.map(e);
     }
   }
-
   //=== REMOVE FROM SAVED EVENT ====
 
   Future<void> removeSavedEvent({
@@ -68,6 +80,8 @@ class EventRepository {
     required String eventId,
   }) async {
     try {
+      final batch = firestore.batch();
+
       final snapshot = await firestore
           .collection('saved_events')
           .where('userId', isEqualTo: userId)
@@ -75,8 +89,14 @@ class EventRepository {
           .get();
 
       for (final doc in snapshot.docs) {
-        await doc.reference.delete();
+        batch.delete(doc.reference);
       }
+
+      final eventRef = firestore.collection('events').doc(eventId);
+
+      batch.update(eventRef, {'savedUsers.$userId': FieldValue.delete()});
+
+      await batch.commit();
     } catch (e) {
       throw FirebaseExceptionMapper.map(e);
     }

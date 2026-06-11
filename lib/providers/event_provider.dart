@@ -81,6 +81,7 @@ class EventProvider extends ChangeNotifier {
 
         createdBy: user?.id ?? "id null",
         creatorName: user?.name ?? "User",
+        savedUsers: {},
       );
 
       // Save event
@@ -126,7 +127,11 @@ class EventProvider extends ChangeNotifier {
       log("$user");
       if (user == null) return;
 
-      await repository.saveEvent(userId: user.id, eventId: eventId);
+      await repository.saveEvent(
+        userId: user.id,
+        eventId: eventId,
+        userName: user.name,
+      );
       _savedEventIds.add(eventId);
     } catch (e) {
       _error = e.toString();
@@ -176,12 +181,11 @@ class EventProvider extends ChangeNotifier {
     }
   }
 
-
-//===CLEAR ERROR ===
+  //===CLEAR ERROR ===
   void clearError() {
-  _error = null;
-  notifyListeners();
-}
+    _error = null;
+    notifyListeners();
+  }
 
   @override
   void dispose() {

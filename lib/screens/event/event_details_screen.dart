@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:near_vibe/core/responsive/app_sizes.dart';
 import 'package:near_vibe/core/responsive/responsive.dart';
 import 'package:near_vibe/core/style/app_text_styles.dart';
 import 'package:near_vibe/core/themes/theme_extensions.dart';
@@ -107,11 +108,64 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                       ),
                     ],
                   ),
+                  if (event.savedUsers.isNotEmpty)
+                    SizedBox(height: context.res.hsm),
+                  if (event.savedUsers.isNotEmpty)
+                    _AttendeesRow(
+                      attendees: event.savedUsers.entries.take(5).map((entry) {
+                        return {
+                          'initial': entry.value[0].toUpperCase(),
+                          'color':
+                              Colors.primaries[entry.key.hashCode %
+                                  Colors.primaries.length],
+                        };
+                      }).toList(),
+                      goingCount: event.savedUsers.length,
+                      interestedCount: 0,
+                    ),
                   SizedBox(height: context.res.hsm),
                   Text('About Event', style: AppTextStyles.titleLarge),
                   SizedBox(height: context.res.hsm),
                   Text(event.description, style: AppTextStyles.bodyLarge),
 
+                  SizedBox(height: context.res.hsm),
+
+                  // Container(
+                  //   padding: const EdgeInsets.all(14),
+                  //   decoration: BoxDecoration(
+                  //     color: context.primary.withValues(alpha: .08),
+                  //     borderRadius: BorderRadius.circular(16),
+                  //   ),
+                  //   child: Column(
+                  //     // crossAxisAlignment: CrossAxisAlignment.start,
+                  //     children: [
+                  //       _AttendeesRow(
+                  //         attendees: event.savedUsers.entries.take(5).map((
+                  //           entry,
+                  //         ) {
+                  //           return {
+                  //             'initial': entry.value[0].toUpperCase(),
+                  //             'color':
+                  //                 Colors.primaries[entry.key.hashCode %
+                  //                     Colors.primaries.length],
+                  //           };
+                  //         }).toList(),
+                  //         goingCount: event.savedUsers.length,
+                  //         interestedCount: 0,
+                  //       ),
+                  //       SizedBox(height: context.res.hxs),
+                  //       Row(
+                  //         children: [
+                  //           const Icon(Icons.person_outline),
+                  //           SizedBox(width: context.res.wxs),
+                  //           Expanded(
+                  //             child: Text("Created by ${event.creatorName}"),
+                  //           ),
+                  //         ],
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
                   SizedBox(height: context.res.hsm),
                   ElevatedButton(
                     onPressed: _openGoogleMaps,
@@ -286,5 +340,82 @@ class EventHeaderDelegate extends SliverPersistentHeaderDelegate {
   @override
   bool shouldRebuild(covariant EventHeaderDelegate oldDelegate) {
     return true;
+  }
+}
+
+// ── Attendees Row ─────────────────────────────────────────────────────────────
+class _AttendeesRow extends StatelessWidget {
+  final List<Map<String, dynamic>> attendees;
+  final int goingCount;
+  final int interestedCount;
+
+  const _AttendeesRow({
+    required this.attendees,
+    required this.goingCount,
+    required this.interestedCount,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        SizedBox(
+          width: attendees.length * 18.0 + 8,
+          height: 28,
+          child: Stack(
+            children: List.generate(attendees.length, (i) {
+              final att = attendees[i];
+              return Positioned(
+                left: i * 18.0,
+                child: Container(
+                  width: 26,
+                  height: 26,
+                  decoration: BoxDecoration(
+                    color: att['color'] as Color,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: const Color(0xFF0F0F14),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      att['initial'] as String,
+                      style: const TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
+        ),
+        const SizedBox(width: AppSizes.sm),
+        RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: '$goingCount Saved',
+                style: const TextStyle(
+                  fontSize: AppSizes.textXs,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              // TextSpan(
+              //   text: '  ·  $interestedCount interested',
+              //   style: TextStyle(
+              //     fontSize: AppSizes.textXs,
+              //     color: Colors.white.withValues(alpha: 0.4),
+              //   ),
+              // ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }

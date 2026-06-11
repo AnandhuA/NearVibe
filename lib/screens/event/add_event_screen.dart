@@ -181,8 +181,8 @@ class _AddEventScreenState extends State<AddEventScreen> {
                             );
                             if (result != null) {
                               selectedLatLng = result;
-                                selectedLocation =
-                                    "${result.latitude}, ${result.longitude}";
+                              selectedLocation =
+                                  "${result.latitude}, ${result.longitude}";
                               selectedLatLng = result;
                               final address = await getAddressFromLatLng(
                                 result.latitude,
@@ -259,11 +259,11 @@ class _AddEventScreenState extends State<AddEventScreen> {
         if (!mounted) return;
 
         AppSnackBar.success(context, "Event Created Successfully");
-
+        clearForm();
         // Navigator.pop(context);
       } catch (e) {
         if (!mounted) return;
-        clearForm();
+        // clearForm();
 
         AppSnackBar.error(context, e.toString());
       }

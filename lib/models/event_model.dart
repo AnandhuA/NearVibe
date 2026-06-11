@@ -12,6 +12,7 @@ class EventModel {
   final DateTime eventDate;
   final String createdBy;
   final String creatorName;
+  final Map<String, String> savedUsers;
 
   const EventModel({
     this.id = '',
@@ -25,6 +26,7 @@ class EventModel {
     required this.eventDate,
     required this.createdBy,
     required this.creatorName,
+    required this.savedUsers,
   });
 
   factory EventModel.fromDocument(
@@ -46,6 +48,9 @@ class EventModel {
           DateTime.now(),
       createdBy: data['createdBy'] ?? '',
       creatorName: data['creatorName'] ?? '',
+     savedUsers: Map<String, String>.from(
+  data['savedUsers'] ?? {},
+),
     );
   }
 
@@ -66,6 +71,7 @@ class EventModel {
       ),
       createdBy: json['createdBy'] ?? '',
       creatorName: json['creatorName'] ?? '',
+      savedUsers: json['savedUsers']??{}
     );
   }
 
@@ -84,6 +90,7 @@ class EventModel {
       'createdBy': createdBy,
       'creatorName': creatorName,
       'createdAt': FieldValue.serverTimestamp(),
+     'savedUsers': savedUsers,
     };
   }
 
@@ -100,6 +107,7 @@ class EventModel {
       'eventDate': eventDate.toIso8601String(),
       'createdBy': createdBy,
       'creatorName': creatorName,
+      'savedUsers':savedUsers
     };
   }
 
@@ -115,6 +123,7 @@ class EventModel {
     DateTime? eventDate,
     String? createdBy,
     String? creatorName,
+    Map<String,String>? savedUsers
   }) {
     return EventModel(
       id: id ?? this.id,
@@ -130,6 +139,7 @@ class EventModel {
       createdBy: createdBy ?? this.createdBy,
       creatorName:
           creatorName ?? this.creatorName,
+          savedUsers: savedUsers??this.savedUsers
     );
   }
 }
