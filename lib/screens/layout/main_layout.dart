@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:near_vibe/core/themes/theme_extensions.dart';
+import 'package:near_vibe/providers/event_provider.dart';
+import 'package:near_vibe/providers/user_provider.dart';
 import 'package:near_vibe/screens/event/add_event_screen.dart';
 import 'package:near_vibe/screens/home/home_screen.dart';
 import 'package:near_vibe/screens/map/map_screen.dart';
 import 'package:near_vibe/screens/profile/profile_screen.dart';
 import 'package:near_vibe/screens/saved/saved_events_screen.dart';
+import 'package:provider/provider.dart';
 
 class MainLayoutScreen extends StatefulWidget {
-  
   const MainLayoutScreen({super.key});
 
   @override
@@ -24,6 +26,16 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
     SavedEventsScreen(),
     ProfileScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    // ← Fetch on screen load
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<UserProvider>().fetchCurrentUser();
+      context.read<EventProvider>().fetchSavedEvents();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

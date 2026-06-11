@@ -99,6 +99,7 @@ class LocationBottomSheet extends StatelessWidget {
               ),
             ),
           ),
+          SizedBox(height: context.res.hlg),
         ],
       ),
     );

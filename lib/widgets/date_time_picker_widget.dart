@@ -4,7 +4,8 @@ import 'package:near_vibe/core/style/app_text_styles.dart';
 import 'package:near_vibe/core/themes/theme_extensions.dart';
 
 class DateTimePickerWidget extends StatefulWidget {
-  const DateTimePickerWidget({super.key});
+  final ValueChanged<DateTime>? onDateTimeSelected;
+  const DateTimePickerWidget({super.key, this.onDateTimeSelected});
 
   @override
   State<DateTimePickerWidget> createState() => _DateTimePickerWidgetState();
@@ -27,6 +28,7 @@ class _DateTimePickerWidgetState extends State<DateTimePickerWidget> {
       setState(() {
         selectedDate = picked;
       });
+      _notifyParent();
     }
   }
 
@@ -40,7 +42,24 @@ class _DateTimePickerWidgetState extends State<DateTimePickerWidget> {
       setState(() {
         selectedTime = picked;
       });
+      _notifyParent();
     }
+  }
+
+  void _notifyParent() {
+    if (selectedDate == null || selectedTime == null) {
+      return;
+    }
+
+    final dateTime = DateTime(
+      selectedDate!.year,
+      selectedDate!.month,
+      selectedDate!.day,
+      selectedTime!.hour,
+      selectedTime!.minute,
+    );
+
+    widget.onDateTimeSelected?.call(dateTime);
   }
 
   @override

@@ -69,7 +69,8 @@ class AppColors {
   static const Color error = Color(0xFFEF4444);
   static const Color warning = Color(0xFFF59E0B);
 
-  static const Color loadingColor = Colors.white;
+  static const Color darkLoadingColor = Colors.white;
+  static const Color lightLoadingColor = Colors.black;
 
   // =========================
   // Map Pin Colors
@@ -89,4 +90,16 @@ class AppColors {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
+
+  //====MARKER COLORS ===
+ static final List<Color> markerColors = [
+    Colors.red,
+    Colors.green,
+    Colors.orange,
+    Colors.purple,
+    Colors.pink,
+    Colors.teal,
+    Colors.amber,
+    Colors.indigo,
+  ];
 }

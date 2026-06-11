@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:near_vibe/core/themes/app_colors.dart';
 import 'package:near_vibe/core/themes/theme_extensions.dart';
 
 class AppSnackBar {
@@ -37,7 +36,7 @@ class AppSnackBar {
     show(
       context,
       message: message,
-      backgroundColor: AppColors.success,
+      backgroundColor: context.success,
       icon: Icons.check_circle,
     );
   }
@@ -49,6 +48,16 @@ class AppSnackBar {
       message: message,
       backgroundColor: context.error,
       icon: Icons.error,
+    );
+  }
+
+  /// Error snackbar
+  static void warning(BuildContext context, String message) {
+    show(
+      context,
+      message: message,
+      backgroundColor: context.warning,
+      icon: Icons.warning_amber_outlined,
     );
   }
 }

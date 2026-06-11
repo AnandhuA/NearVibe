@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:near_vibe/core/exceptions/app_exception.dart';
 import 'package:near_vibe/core/responsive/responsive.dart';
 import 'package:near_vibe/core/style/app_text_styles.dart';
-import 'package:near_vibe/core/themes/app_colors.dart';
 import 'package:near_vibe/core/themes/theme_extensions.dart';
 import 'package:near_vibe/core/utils/validators.dart';
-import 'package:near_vibe/core/widgets/app_scaffold.dart';
-import 'package:near_vibe/core/widgets/app_snackbar.dart';
+import 'package:near_vibe/widgets/app_loading.dart';
+import 'package:near_vibe/widgets/app_scaffold.dart';
+import 'package:near_vibe/widgets/app_snackbar.dart';
 import 'package:near_vibe/providers/auth_provider.dart';
 import 'package:near_vibe/screens/layout/main_layout.dart';
 import 'package:provider/provider.dart';
@@ -22,13 +21,9 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  final TextEditingController emailController = TextEditingController(
-    text: "anandhu@gmail.com",
-  );
+  final TextEditingController emailController = TextEditingController();
 
-  final TextEditingController passwordController = TextEditingController(
-    text: 'anandhu',
-  );
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   void dispose() {
@@ -98,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 return ElevatedButton(
                   onPressed: onLogin,
                   child: authProvider.isLoading
-                      ? SpinKitThreeBounce(color: AppColors.loadingColor, size: 18)
+                      ? threeBounceLoading(context)
                       : Text("Login", style: AppTextStyles.titleMedium),
                 );
               },

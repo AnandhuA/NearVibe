@@ -24,6 +24,9 @@ extension ThemeColors on BuildContext {
   Color get hitText =>
       isDarkMode ? AppColors.darkHintText : AppColors.lightHintText;
 
+  //loading color
+
+Color get loadingColor => isDarkMode ? AppColors.darkLoadingColor:AppColors.lightLoadingColor;
   // COMMON
 
   Color get whiteText => AppColors.whiteText;
@@ -33,4 +36,6 @@ extension ThemeColors on BuildContext {
   Color get success => AppColors.success;
 
   Color get error => AppColors.error;
+
+  Color get warning => AppColors.warning;
 }
