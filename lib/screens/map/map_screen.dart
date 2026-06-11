@@ -143,10 +143,86 @@ class _MapScreenState extends State<MapScreen> {
                         Icons.location_pin,
                         color: context.primary,
                       ),
+                      suffixIcon: provider.searchResults.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                context.read<MapProvider>().clearSearch();
+                                FocusScope.of(context).unfocus();
+                              },
+                            )
+                          : provider.isSearching
+                          ? const Padding(
+                              padding: EdgeInsets.all(12),
+                              child: SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                            )
+                          : null,
+        
                       hintText: "Search",
+                      
                     ),
+                    onChanged: (value) {
+                      Future.delayed(const Duration(milliseconds: 400), () {
+                        context.read<MapProvider>().searchLocation(value);
+                      });
+                    },
                   ),
                 ),
+
+                if (provider.searchResults.isNotEmpty)
+                  Container(
+                    margin: const EdgeInsets.only(top: 4),
+                    decoration: BoxDecoration(
+                      color: context.background,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          blurRadius: 10,
+                          color: Colors.black.withValues(alpha: .12),
+                        ),
+                      ],
+                    ),
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: provider.searchResults.length,
+                      separatorBuilder: (_, _) => const Divider(height: 1),
+                      itemBuilder: (context, i) {
+                        final result = provider.searchResults[i];
+                        return ListTile(
+                          dense: true,
+                          leading: Icon(
+                            Icons.place_outlined,
+                            color: context.primary,
+                          ),
+                          title: Text(
+                            result['name'] as String,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.bodySmall,
+                          ),
+                          onTap: () {
+                            final target = LatLng(
+                              result['lat'] as double,
+                              result['lon'] as double,
+                            );
+                            mapController.move(target, 15);
+                            context.read<MapProvider>().clearSearch();
+                            FocusScope.of(context).unfocus();
+                          },
+                        );
+                      },
+                    ),
+                  ),
+
+
+
                 if (provider.isLocationOff)
                   Positioned(
                     top: 0,

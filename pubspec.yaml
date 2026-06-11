@@ -36,6 +36,7 @@ dependencies:
   crypto: ^3.0.7
   geoflutterfire_plus: ^0.0.34
   geocoding: ^4.0.0
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:

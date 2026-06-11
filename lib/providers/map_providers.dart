@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
 import 'package:near_vibe/models/event_model.dart';
@@ -22,6 +25,10 @@ class MapProvider extends ChangeNotifier {
   LatLng? get selectedEventLocation => _selectedEvent == null
       ? null
       : LatLng(_selectedEvent!.latitude, _selectedEvent!.longitude);
+
+
+  List<Map<String, dynamic>> searchResults = [];
+  bool isSearching = false;
 
   // ================= INIT PREFS ONCE =================
 
@@ -119,6 +126,55 @@ class MapProvider extends ChangeNotifier {
   //============
   void clearSelectedEvent() {
     _selectedEvent = null;
+    notifyListeners();
+  }
+
+
+//=====LOCATION SEARCH =====
+  Future<void> searchLocation(String query) async {
+    if (query.trim().isEmpty) {
+      searchResults = [];
+      notifyListeners();
+      return;
+    }
+
+    isSearching = true;
+    notifyListeners();
+
+    try {
+      final uri = Uri.parse(
+        'https://nominatim.openstreetmap.org/search'
+        '?q=${Uri.encodeComponent(query)}&format=json&limit=5',
+      );
+
+      final response = await http.get(
+        uri,
+        headers: {'User-Agent': 'NearVibe/1.0 (com.example.near_vibe)'},
+      );
+
+      if (response.statusCode == 200) {
+        final List data = jsonDecode(response.body);
+        searchResults = data
+            .map<Map<String, dynamic>>(
+              (e) => {
+                'name': e['display_name'] as String,
+                'lat': double.parse(e['lat'] as String),
+                'lon': double.parse(e['lon'] as String),
+              },
+            )
+            .toList();
+      }
+    } catch (_) {
+      searchResults = [];
+    } finally {
+      isSearching = false;
+      notifyListeners();
+    }
+  }
+
+  //====CLEAR SEACH =====
+  void clearSearch() {
+    searchResults = [];
     notifyListeners();
   }
 
