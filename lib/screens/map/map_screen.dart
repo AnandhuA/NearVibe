@@ -137,45 +137,44 @@ class _MapScreenState extends State<MapScreen> {
                       : 60, // ← shift down if banner visible
                   left: 20,
                   right: 20,
-                  child: TextField(
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(
-                        Icons.location_pin,
-                        color: context.primary,
-                      ),
-                      suffixIcon: provider.searchResults.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: () {
-                                context.read<MapProvider>().clearSearch();
-                                FocusScope.of(context).unfocus();
-                              },
-                            )
-                          : provider.isSearching
-                          ? const Padding(
-                              padding: EdgeInsets.all(12),
-                              child: SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              ),
-                            )
-                          : null,
-        
-                      hintText: "Search",
-                      
-                    ),
-                    onChanged: (value) {
-                      Future.delayed(const Duration(milliseconds: 400), () {
-                        context.read<MapProvider>().searchLocation(value);
-                      });
-                    },
-                  ),
-                ),
+                  child: Column(
+                    children: [
+                      TextField(
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(
+                            Icons.location_pin,
+                            color: context.primary,
+                          ),
+                          suffixIcon: provider.searchResults.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear),
+                                  onPressed: () {
+                                    context.read<MapProvider>().clearSearch();
+                                    FocusScope.of(context).unfocus();
+                                  },
+                                )
+                              : provider.isSearching
+                              ? const Padding(
+                                  padding: EdgeInsets.all(12),
+                                  child: SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                )
+                              : null,
 
-                if (provider.searchResults.isNotEmpty)
+                          hintText: "Search",
+                        ),
+                        onChanged: (value) {
+                          Future.delayed(const Duration(milliseconds: 400), () {
+                            context.read<MapProvider>().searchLocation(value);
+                          });
+                        },
+                      ),
+                      if (provider.searchResults.isNotEmpty)
                   Container(
                     margin: const EdgeInsets.only(top: 4),
                     decoration: BoxDecoration(
@@ -220,6 +219,11 @@ class _MapScreenState extends State<MapScreen> {
                       },
                     ),
                   ),
+                    ],
+                  ),
+                ),
+
+               
 
 
 
