@@ -374,7 +374,7 @@ class _AttendeesRow extends StatelessWidget {
                     color: att['color'] as Color,
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: const Color(0xFF0F0F14),
+                      color: context.background,
                       width: 1.5,
                     ),
                   ),
