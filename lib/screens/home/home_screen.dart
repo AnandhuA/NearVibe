@@ -24,6 +24,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  String? selectedCategory;
   @override
   void initState() {
     super.initState();
@@ -31,6 +32,17 @@ class _HomeScreenState extends State<HomeScreen> {
     Future.microtask(() {
       context.read<EventProvider>().fetchEvents();
     });
+  }
+
+  List<EventModel> filterEventsByCategory(
+    List<EventModel> events,
+    String? category,
+  ) {
+    if (category == null || category == "All") {
+      return events;
+    } else {
+      return events.where((event) => event.category == category).toList();
+    }
   }
 
   @override
@@ -99,10 +111,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 final category = isAll
                     ? {"title": "All"}
                     : dummyCategoriesList[index - 1];
-                return CategoryWidget(
-                  icon: category["icon"],
-                  title: category["title"],
-                  bgColor: context.primary.withValues(alpha: 0.09),
+                return GestureDetector(
+                  onTap: () => setState(() {
+                    selectedCategory = category["title"];
+                  }),
+                  child: CategoryWidget(
+                    icon: category["icon"],
+                    title: category["title"],
+                    bgColor: context.primary.withValues(alpha: 0.09),
+                    isSelected: category["title"] == selectedCategory,
+                  ),
                 );
               },
             ),
@@ -119,11 +137,16 @@ class _HomeScreenState extends State<HomeScreen> {
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: events.length,
+              itemCount: filterEventsByCategory(
+                events,
+                selectedCategory,
+              ).length,
               separatorBuilder: (_, _) => SizedBox(height: context.res.hsm),
               itemBuilder: (context, index) {
-                final event = events[index];
-
+                final event = filterEventsByCategory(
+                  events,
+                  selectedCategory,
+                )[index];
                 return GestureDetector(
                   onTap: () => Navigator.push(
                     context,
