@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:avatar_plus/avatar_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:near_vibe/core/responsive/responsive.dart';
@@ -8,6 +10,7 @@ import 'package:near_vibe/core/utils/helper_funtions.dart';
 import 'package:near_vibe/models/event_model.dart';
 import 'package:near_vibe/models/user_model.dart';
 import 'package:near_vibe/providers/event_provider.dart';
+import 'package:near_vibe/providers/map_providers.dart';
 import 'package:near_vibe/providers/user_provider.dart';
 import 'package:near_vibe/screens/event/event_details_screen.dart';
 import 'package:near_vibe/widgets/app_loading.dart';
@@ -25,6 +28,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String? selectedCategory;
+  String? selectedDistance;
+
   @override
   void initState() {
     super.initState();
@@ -34,15 +39,52 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  List<EventModel> filterEventsByCategory(
+  List<EventModel> filterEventsByCategoryAndDistance(
     List<EventModel> events,
     String? category,
+    String? distance,
   ) {
+    List<EventModel> filteredEvents = events;
+
     if (category == null || category == "All") {
-      return events;
+      filteredEvents = events;
     } else {
-      return events.where((event) => event.category == category).toList();
+      filteredEvents = events
+          .where((event) => event.category == category)
+          .toList();
     }
+
+    // if (distance != null) {
+    //   final distanceInMeters =
+    //       double.tryParse(distance.replaceAll('km', '')) * 1000;
+    //   if (distanceInMeters > 0) {
+    //     filteredEvents = filteredEvents.where((event) {
+    //       final distanceToEvent = calculateDistance(
+    //         mapProvider.currentLocation!.latitude,
+    //         mapProvider.currentLocation!.longitude,
+    //         event.latitude,
+    //         event.longitude,
+    //       );
+    //       return distanceToEvent <= distanceInMeters;
+    //     }).toList();
+    //   }
+    // }
+
+    return filteredEvents;
+  }
+
+  double calculateDistance(double lat1, double lng1, double lat2, double lng2) {
+    const R = 6371; // Radius of the earth in km
+    final dLat = (lat2 - lat1) * math.pi / 180;
+    final dLng = (lng2 - lng1) * math.pi / 180;
+    final a =
+        math.sin(dLat / 2) * math.sin(dLat / 2) +
+        math.cos(lat1 * math.pi / 180) *
+            math.cos(lat2 * math.pi / 180) *
+            math.sin(dLng / 2) *
+            math.sin(dLng / 2);
+    final c = 2 * math.asin(math.sqrt(a));
+    return R * c; // Distance in km
   }
 
   @override
@@ -59,7 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
         scrolledUnderElevation: 0,
         backgroundColor: Colors.transparent,
         title: Column(
-          crossAxisAlignment: .start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               HelperFuntions.getGreeting(),
@@ -99,6 +141,70 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: Column(
         children: [
+          Consumer<MapProvider>(
+            builder: (context, mapProvider, _) {
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                height: context.res.h(0.06),
+                width: context.res.width,
+                decoration: BoxDecoration(
+                  color: context.primary.withValues(alpha: .08),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+
+                child: Row(
+                  children: [
+                    Icon(Icons.location_on, color: context.primary),
+
+                    SizedBox(width: context.res.wsm),
+
+                    Expanded(
+                      child: mapProvider.currentLocation == null
+                          ? Text(
+                              "Getting location...",
+                              style: AppTextStyles.bodyMedium,
+                            )
+                          : FutureBuilder<String>(
+                              future: getAddressFromLatLng(
+                                mapProvider.currentLocation!.latitude,
+                                mapProvider.currentLocation!.longitude,
+                              ),
+                              builder: (context, snapshot) {
+                                return Text(
+                                  snapshot.data ?? "Loading...",
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTextStyles.bodyMedium,
+                                );
+                              },
+                            ),
+                    ),
+
+                    // Distance Filter
+                    DropdownButton<String>(
+                      value: selectedDistance,
+                      items: [
+                        DropdownMenuItem(value: "1km", child: Text("1km")),
+                        DropdownMenuItem(value: "5km", child: Text("5km")),
+                        DropdownMenuItem(value: "10km", child: Text("10km")),
+                        DropdownMenuItem(value: "20km", child: Text("20km")),
+                        DropdownMenuItem(value: "All", child: Text("All")),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          selectedDistance = value;
+                        });
+                      },
+                      icon: const Icon(Icons.arrow_downward),
+                      elevation: 2,
+                      style: TextStyle(color: Colors.black),
+                      underline: Container(height: 0),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
           Container(
             height: context.res.h(0.08),
             padding: EdgeInsets.symmetric(vertical: 10),
@@ -137,15 +243,17 @@ class _HomeScreenState extends State<HomeScreen> {
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: filterEventsByCategory(
+              itemCount: filterEventsByCategoryAndDistance(
                 events,
                 selectedCategory,
+                selectedDistance,
               ).length,
               separatorBuilder: (_, _) => SizedBox(height: context.res.hsm),
               itemBuilder: (context, index) {
-                final event = filterEventsByCategory(
+                final event = filterEventsByCategoryAndDistance(
                   events,
                   selectedCategory,
+                  selectedDistance,
                 )[index];
                 return GestureDetector(
                   onTap: () => Navigator.push(
