@@ -1,0 +1,369 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:transparent}
+.wrap{display:flex;gap:20px;justify-content:center;padding:1.5rem 0;flex-wrap:wrap}
+.phone-col{display:flex;flex-direction:column;align-items:center;gap:8px}
+.phone{width:210px;background:#0f0f14;border-radius:36px;border:2px solid #1e1e2e;overflow:hidden;position:relative;flex-shrink:0}
+.label{font-size:12px;color:var(--color-text-secondary);font-weight:500;letter-spacing:.2px}
+.notch{width:60px;height:16px;background:#0f0f14;border-radius:0 0 10px 10px;margin:0 auto;position:relative;z-index:10}
+
+/* shared */
+.screen{min-height:430px;display:flex;flex-direction:column}
+.tag{display:inline-flex;align-items:center;gap:5px;background:#1e1e30;border:1px solid #2a2a40;border-radius:20px;padding:4px 10px;font-size:10px;color:#a78bfa;font-weight:600;letter-spacing:.3px}
+.tag i{font-size:11px}
+.h1{font-size:20px;font-weight:600;color:#fff;line-height:1.25;letter-spacing:-.4px}
+.sub{font-size:11px;color:#6060a0;line-height:1.55}
+.btn-primary{background:#7c3aed;color:#fff;border:none;border-radius:14px;padding:12px;font-size:12px;font-weight:600;width:100%;cursor:pointer}
+.btn-ghost{background:transparent;color:#a78bfa;border:1.5px solid #2a1d60;border-radius:14px;padding:10px;font-size:12px;font-weight:500;width:100%;cursor:pointer}
+.dots{display:flex;gap:5px;justify-content:center}
+.dot{width:6px;height:6px;border-radius:50%;background:#2a2a40}
+.dot.on{background:#7c3aed;width:18px;border-radius:4px}
+.skip{position:absolute;top:22px;right:16px;font-size:10px;color:#5050a0;font-weight:500}
+
+/* Screen 1 — Welcome / Splash */
+.s1{background:#0f0f14;padding:32px 18px 24px;text-align:center;justify-content:space-between}
+.s1-art{height:170px;display:flex;align-items:center;justify-content:center;position:relative;margin:-4px 0 4px}
+.s1-circle{width:120px;height:120px;border-radius:50%;border:1.5px solid #1e1e30;display:flex;align-items:center;justify-content:center;position:relative}
+.s1-circle-outer{width:160px;height:160px;border-radius:50%;border:1px solid #161628;position:absolute}
+.s1-logo{width:52px;height:52px;background:#7c3aed;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:22px;z-index:2}
+.s1-pin{position:absolute;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px}
+
+/* Screen 2 — Discover */
+.s2{background:#0f0f14;justify-content:space-between}
+.s2-hero{height:195px;position:relative;overflow:hidden}
+.s2-map{background:#111120;width:100%;height:100%;position:relative}
+.s2-grid-h{position:absolute;left:0;right:0;height:1px;background:#1a1a2e}
+.s2-grid-v{position:absolute;top:0;bottom:0;width:1px;background:#1a1a2e}
+.s2-pin{position:absolute;display:flex;flex-direction:column;align-items:center}
+.s2-pin-dot{width:24px;height:24px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center}
+.s2-pin-dot i{transform:rotate(45deg);font-size:10px;color:#fff}
+.s2-pulse{position:absolute;width:44px;height:44px;border-radius:50%;top:-10px;left:-10px;opacity:.15}
+.s2-you{position:absolute;top:50%;left:48%;width:10px;height:10px;background:#3b82f6;border-radius:50%;border:2px solid #fff}
+.s2-body{padding:14px 16px 20px;flex:1;display:flex;flex-direction:column;justify-content:space-between}
+.feat-row{display:flex;gap:7px;margin-bottom:12px}
+.feat{background:#161622;border-radius:10px;padding:7px 9px;display:flex;align-items:center;gap:6px;flex:1}
+.feat i{font-size:13px;color:#7c3aed}
+.feat span{font-size:9px;color:#8080b0;font-weight:500}
+
+/* Screen 3 — Categories */
+.s3{background:#0f0f14;padding:24px 16px 20px;justify-content:space-between}
+.s3-top{text-align:center;margin-bottom:16px}
+.cat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:14px}
+.cat-item{background:#161622;border-radius:12px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:5px;border:1.5px solid transparent;cursor:pointer}
+.cat-item.sel{background:#1e1030;border-color:#7c3aed}
+.cat-icon{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.cat-icon i{font-size:15px;color:#fff}
+.cat-name{font-size:9px;color:#7070a0;font-weight:500}
+.cat-item.sel .cat-name{color:#a78bfa}
+.sel-label{font-size:10px;color:#5050a0;text-align:center;margin-bottom:10px}
+.sel-label span{color:#a78bfa}
+
+/* Screen 4 — Location */
+.s4{background:#0f0f14;padding:24px 16px 20px;justify-content:space-between}
+.s4-art{height:150px;display:flex;align-items:center;justify-content:center;position:relative;margin-bottom:8px}
+.s4-map-card{background:#161622;border-radius:16px;width:168px;height:110px;position:relative;overflow:hidden}
+.s4-map-bg{position:absolute;inset:0;background:#111120}
+.s4-road-h{position:absolute;left:0;right:0;height:2px;background:#1e1e30}
+.s4-road-v{position:absolute;top:0;bottom:0;width:2px;background:#1e1e30}
+.s4-you-ring{position:absolute;width:28px;height:28px;border-radius:50%;border:1.5px solid #3b82f6;opacity:.3;top:50%;left:50%;transform:translate(-50%,-50%)}
+.s4-you-dot{position:absolute;width:10px;height:10px;border-radius:50%;background:#3b82f6;border:2px solid #fff;top:50%;left:50%;transform:translate(-50%,-50%)}
+.s4-label{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:#0f0f14;border:1px solid #2a2a40;border-radius:8px;padding:3px 8px;font-size:9px;color:#9090c0;white-space:nowrap}
+.location-row{display:flex;align-items:center;gap:10px;background:#161622;border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.location-row i{font-size:16px;color:#7c3aed}
+.loc-text{font-size:11px;font-weight:600;color:#fff}
+.loc-sub{font-size:9px;color:#5050a0}
+.allow-btn{background:#7c3aed;color:#fff;border:none;border-radius:14px;padding:12px;font-size:12px;font-weight:600;width:100%;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.allow-btn i{font-size:14px}
+.manual{font-size:10px;color:#5050a0;text-align:center;margin-top:8px}
+.manual span{color:#7c3aed}
+
+/* Screen 5 — Notifications */
+.s5{background:#0f0f14;padding:24px 16px 20px;justify-content:space-between}
+.s5-art{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
+.notif-card{background:#161622;border-radius:12px;padding:9px 11px;display:flex;align-items:center;gap:9px}
+.notif-icon{width:30px;height:30px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.notif-icon i{font-size:13px;color:#fff}
+.notif-title{font-size:10px;font-weight:600;color:#fff}
+.notif-sub{font-size:9px;color:#5050a0;margin-top:1px}
+.notif-time{font-size:9px;color:#3a3a60;margin-left:auto;align-self:flex-start}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;background:#161622;border-radius:12px;padding:10px 12px;margin-bottom:7px}
+.toggle-label{font-size:11px;color:#9090b0;font-weight:500}
+.toggle{width:32px;height:18px;border-radius:9px;background:#7c3aed;position:relative}
+.toggle::after{content:'';position:absolute;width:12px;height:12px;border-radius:50%;background:#fff;top:3px;right:3px}
+.toggle.off{background:#1e1e30}
+.toggle.off::after{right:auto;left:3px}
+</style>
+
+<h2 class="sr-only">NearVibe onboarding screens: Welcome, Discover Nearby, Pick Interests, Enable Location, and Notification preferences</h2>
+
+<div class="wrap">
+
+  <!-- 1. Welcome -->
+  <div class="phone-col">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen s1">
+        <div class="s1-art">
+          <div class="s1-circle-outer"></div>
+          <div class="s1-circle">
+            <div class="s1-logo"><i class="ti ti-map-pin" style="font-size:22px;color:#fff"></i></div>
+          </div>
+          <!-- orbit pins -->
+          <div class="s1-pin" style="top:18px;left:28px;background:#1e1030;border:1px solid #3d2d6e"><i class="ti ti-music" style="font-size:9px;color:#a78bfa"></i></div>
+          <div class="s1-pin" style="top:18px;right:28px;background:#0e2820;border:1px solid #1a4a30"><i class="ti ti-device-laptop" style="font-size:9px;color:#4ade80"></i></div>
+          <div class="s1-pin" style="bottom:22px;left:22px;background:#1a0820;border:1px solid #4a1040"><i class="ti ti-device-gamepad-2" style="font-size:9px;color:#f472b6"></i></div>
+          <div class="s1-pin" style="bottom:22px;right:22px;background:#1a1208;border:1px solid #4a2a00"><i class="ti ti-tools-kitchen-2" style="font-size:9px;color:#fbbf24"></i></div>
+        </div>
+
+        <div>
+          <div style="display:flex;justify-content:center;margin-bottom:12px">
+            <div class="tag"><i class="ti ti-sparkles" aria-hidden="true"></i>Discover local events</div>
+          </div>
+          <p class="h1" style="margin-bottom:8px">Find what's happening near you</p>
+          <p class="sub">Music, meetups, gaming and more — all within walking distance, right now.</p>
+        </div>
+
+        <div>
+          <div class="dots" style="margin-bottom:14px">
+            <div class="dot on"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          </div>
+          <button class="btn-primary" style="margin-bottom:8px">Get Started</button>
+          <button class="btn-ghost">I already have an account</button>
+        </div>
+      </div>
+    </div>
+    <div class="label">1. Welcome</div>
+  </div>
+
+  <!-- 2. Discover -->
+  <div class="phone-col">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen s2">
+        <div class="s2-hero">
+          <div class="s2-map">
+            <div class="s2-grid-h" style="top:30%"></div>
+            <div class="s2-grid-h" style="top:55%"></div>
+            <div class="s2-grid-h" style="top:78%"></div>
+            <div class="s2-grid-v" style="left:28%"></div>
+            <div class="s2-grid-v" style="left:58%"></div>
+            <div class="s2-grid-v" style="left:80%"></div>
+            <!-- pins -->
+            <div class="s2-pin" style="top:18%;left:18%">
+              <div class="s2-pulse" style="background:#7c3aed"></div>
+              <div class="s2-pin-dot" style="background:#7c3aed"><i class="ti ti-music" aria-hidden="true"></i></div>
+            </div>
+            <div class="s2-pin" style="top:12%;left:52%">
+              <div class="s2-pin-dot" style="background:#16a34a"><i class="ti ti-device-laptop" aria-hidden="true"></i></div>
+            </div>
+            <div class="s2-pin" style="top:44%;left:60%">
+              <div class="s2-pin-dot" style="background:#be185d"><i class="ti ti-device-gamepad-2" aria-hidden="true"></i></div>
+            </div>
+            <div class="s2-pin" style="top:38%;left:34%">
+              <div class="s2-pin-dot" style="background:#d97706"><i class="ti ti-tools-kitchen-2" aria-hidden="true"></i></div>
+            </div>
+            <div class="s2-you" style="top:48%;left:44%"></div>
+          </div>
+          <!-- bottom overlay text -->
+          <div style="position:absolute;bottom:0;left:0;right:0;height:50px;background:linear-gradient(transparent,#0f0f14)"></div>
+        </div>
+
+        <div class="s2-body">
+          <div>
+            <div class="tag" style="margin-bottom:10px"><i class="ti ti-map-2" aria-hidden="true"></i>Live nearby map</div>
+            <p class="h1" style="margin-bottom:6px">See every event around you</p>
+            <p class="sub" style="margin-bottom:12px">Pins update in real time as new events go live near your location.</p>
+            <div class="feat-row">
+              <div class="feat"><i class="ti ti-clock" aria-hidden="true"></i><span>Real-time</span></div>
+              <div class="feat"><i class="ti ti-adjustments" aria-hidden="true"></i><span>Filters</span></div>
+              <div class="feat"><i class="ti ti-route" aria-hidden="true"></i><span>Directions</span></div>
+            </div>
+          </div>
+          <div>
+            <div class="dots" style="margin-bottom:12px">
+              <div class="dot"></div><div class="dot on"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            </div>
+            <button class="btn-primary">Next</button>
+          </div>
+        </div>
+        <div class="skip">Skip</div>
+      </div>
+    </div>
+    <div class="label">2. Discover</div>
+  </div>
+
+  <!-- 3. Interests -->
+  <div class="phone-col">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen s3">
+        <div class="s3-top">
+          <div class="tag" style="margin:0 auto 10px"><i class="ti ti-heart" aria-hidden="true"></i>Personalise</div>
+          <p class="h1" style="margin-bottom:6px">What do you love?</p>
+          <p class="sub">Pick your interests — we'll show you what matters most.</p>
+        </div>
+
+        <div class="cat-grid">
+          <div class="cat-item sel">
+            <div class="cat-icon" style="background:#2d1d60"><i class="ti ti-music" aria-hidden="true"></i></div>
+            <span class="cat-name">Music</span>
+          </div>
+          <div class="cat-item">
+            <div class="cat-icon" style="background:#0e2820"><i class="ti ti-device-laptop" aria-hidden="true"></i></div>
+            <span class="cat-name">Tech</span>
+          </div>
+          <div class="cat-item sel">
+            <div class="cat-icon" style="background:#1a0820"><i class="ti ti-device-gamepad-2" aria-hidden="true"></i></div>
+            <span class="cat-name">Gaming</span>
+          </div>
+          <div class="cat-item">
+            <div class="cat-icon" style="background:#1a1208"><i class="ti ti-tools-kitchen-2" aria-hidden="true"></i></div>
+            <span class="cat-name">Food</span>
+          </div>
+          <div class="cat-item sel">
+            <div class="cat-icon" style="background:#0a1628"><i class="ti ti-run" aria-hidden="true"></i></div>
+            <span class="cat-name">Sports</span>
+          </div>
+          <div class="cat-item">
+            <div class="cat-icon" style="background:#0a2020"><i class="ti ti-users" aria-hidden="true"></i></div>
+            <span class="cat-name">Meetups</span>
+          </div>
+          <div class="cat-item">
+            <div class="cat-icon" style="background:#20100a"><i class="ti ti-palette" aria-hidden="true"></i></div>
+            <span class="cat-name">Art</span>
+          </div>
+          <div class="cat-item">
+            <div class="cat-icon" style="background:#1a1208"><i class="ti ti-school" aria-hidden="true"></i></div>
+            <span class="cat-name">Education</span>
+          </div>
+          <div class="cat-item">
+            <div class="cat-icon" style="background:#200a12"><i class="ti ti-movie" aria-hidden="true"></i></div>
+            <span class="cat-name">Movies</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="sel-label"><span>3 selected</span> — pick at least 2 to continue</div>
+          <div class="dots" style="margin-bottom:12px">
+            <div class="dot"></div><div class="dot"></div><div class="dot on"></div><div class="dot"></div><div class="dot"></div>
+          </div>
+          <button class="btn-primary">Continue</button>
+        </div>
+        <div class="skip">Skip</div>
+      </div>
+    </div>
+    <div class="label">3. Interests</div>
+  </div>
+
+  <!-- 4. Location -->
+  <div class="phone-col">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen s4">
+        <div style="text-align:center">
+          <div class="tag" style="margin:0 auto 10px"><i class="ti ti-map-pin" aria-hidden="true"></i>Location</div>
+          <p class="h1" style="margin-bottom:6px">Where are you?</p>
+          <p class="sub">We need your location to show events happening near you right now.</p>
+        </div>
+
+        <div class="s4-art">
+          <div class="s4-map-card">
+            <div class="s4-map-bg">
+              <div class="s4-road-h" style="top:35%"></div>
+              <div class="s4-road-h" style="top:65%"></div>
+              <div class="s4-road-v" style="left:35%"></div>
+              <div class="s4-road-v" style="left:65%"></div>
+            </div>
+            <div class="s4-you-ring"></div>
+            <div class="s4-you-dot"></div>
+            <div class="s4-label"><i class="ti ti-map-pin" style="font-size:8px;color:#7c3aed"></i> Kochi, Kerala</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="location-row" style="margin-bottom:8px">
+            <i class="ti ti-map-pin" aria-hidden="true"></i>
+            <div>
+              <div class="loc-text">Kochi, Kerala</div>
+              <div class="loc-sub">Detected automatically</div>
+            </div>
+            <i class="ti ti-check" style="font-size:14px;color:#4ade80;margin-left:auto" aria-hidden="true"></i>
+          </div>
+
+          <div class="dots" style="margin-bottom:12px">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot on"></div><div class="dot"></div>
+          </div>
+          <button class="allow-btn"><i class="ti ti-current-location" aria-hidden="true"></i>Allow Location Access</button>
+          <div class="manual">or <span>enter manually</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="label">4. Location</div>
+  </div>
+
+  <!-- 5. Notifications -->
+  <div class="phone-col">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen s5">
+        <div style="text-align:center">
+          <div class="tag" style="margin:0 auto 10px"><i class="ti ti-bell" aria-hidden="true"></i>Stay in loop</div>
+          <p class="h1" style="margin-bottom:6px">Never miss a thing</p>
+          <p class="sub" style="margin-bottom:14px">Choose what you want to be notified about.</p>
+        </div>
+
+        <div class="s5-art">
+          <div class="notif-card">
+            <div class="notif-icon" style="background:#2d1d60"><i class="ti ti-music" aria-hidden="true"></i></div>
+            <div>
+              <div class="notif-title">Indie Night Live — Tonight</div>
+              <div class="notif-sub">0.5 km · The Loft · 9 PM</div>
+            </div>
+            <div class="notif-time">now</div>
+          </div>
+          <div class="notif-card">
+            <div class="notif-icon" style="background:#0e2820"><i class="ti ti-device-laptop" aria-hidden="true"></i></div>
+            <div>
+              <div class="notif-title">Startup Founders Meetup</div>
+              <div class="notif-sub">1.1 km · CoWork Hub · 7 PM</div>
+            </div>
+            <div class="notif-time">2m</div>
+          </div>
+          <div class="notif-card" style="opacity:.45">
+            <div class="notif-icon" style="background:#1a0820"><i class="ti ti-device-gamepad-2" aria-hidden="true"></i></div>
+            <div>
+              <div class="notif-title">LAN Party Kochi</div>
+              <div class="notif-sub">2.3 km · FunZone · Sat</div>
+            </div>
+            <div class="notif-time">1h</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="toggle-row">
+            <span class="toggle-label">Events near me</span>
+            <div class="toggle"></div>
+          </div>
+          <div class="toggle-row">
+            <span class="toggle-label">My saved events</span>
+            <div class="toggle"></div>
+          </div>
+          <div class="toggle-row">
+            <span class="toggle-label">New events in my interests</span>
+            <div class="toggle off"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="dots" style="margin-bottom:12px">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot on"></div>
+          </div>
+          <button class="btn-primary">All done — let's go!</button>
+        </div>
+      </div>
+    </div>
+    <div class="label">5. Notifications</div>
+  </div>
+
+</div>

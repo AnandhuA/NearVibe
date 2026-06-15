@@ -9,6 +9,7 @@ import 'package:near_vibe/providers/user_provider.dart';
 import 'package:near_vibe/repositories/event_repository.dart';
 import 'package:near_vibe/repositories/local_storage_repository.dart';
 import 'package:near_vibe/repositories/upload_repository.dart';
+import 'package:near_vibe/screens/onboarding/onboarding_1_screen.dart';
 import 'package:near_vibe/screens/onboarding/splash_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -41,7 +42,8 @@ class MyApp extends StatelessWidget {
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
         themeMode: ThemeMode.system,
-        home: SplashScreen(),
+        // home: SplashScreen(),
+        home: OnboardingScreen(),
       ),
     );
   }
