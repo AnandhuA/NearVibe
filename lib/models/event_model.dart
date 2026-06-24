@@ -13,6 +13,11 @@ class EventModel {
   final String createdBy;
   final String creatorName;
   final Map<String, String> savedUsers;
+  final String source;
+  final String externalUrl;
+  final String venueName;
+  final String priceInfo;
+  final String ticketStatus;
 
   const EventModel({
     this.id = '',
@@ -27,6 +32,11 @@ class EventModel {
     required this.createdBy,
     required this.creatorName,
     required this.savedUsers,
+    this.source = 'user',
+    this.externalUrl = '',
+    this.venueName = '',
+    this.priceInfo = '',
+    this.ticketStatus = '',
   });
 
   factory EventModel.fromDocument(
@@ -51,6 +61,11 @@ class EventModel {
      savedUsers: Map<String, String>.from(
   data['savedUsers'] ?? {},
 ),
+      source: data['source'] ?? 'user',
+      externalUrl: data['externalUrl'] ?? '',
+      venueName: data['venueName'] ?? '',
+      priceInfo: data['priceInfo'] ?? '',
+      ticketStatus: data['ticketStatus'] ?? '',
     );
   }
 
@@ -66,12 +81,15 @@ class EventModel {
       latitude: (json['latitude'] ?? 0).toDouble(),
       longitude: (json['longitude'] ?? 0).toDouble(),
       geohash: json['geohash'] ?? '',
-      eventDate: DateTime.parse(
-        json['eventDate'],
-      ),
+      eventDate: DateTime.tryParse(json['eventDate']?.toString() ?? '') ?? DateTime.now(),
       createdBy: json['createdBy'] ?? '',
       creatorName: json['creatorName'] ?? '',
-      savedUsers: json['savedUsers']??{}
+      savedUsers: Map<String, String>.from(json['savedUsers'] ?? {}),
+      source: json['source'] ?? 'user',
+      externalUrl: json['externalUrl'] ?? '',
+      venueName: json['venueName'] ?? '',
+      priceInfo: json['priceInfo'] ?? '',
+      ticketStatus: json['ticketStatus'] ?? '',
     );
   }
 
@@ -90,7 +108,12 @@ class EventModel {
       'createdBy': createdBy,
       'creatorName': creatorName,
       'createdAt': FieldValue.serverTimestamp(),
-     'savedUsers': savedUsers,
+      'savedUsers': savedUsers,
+      'source': source,
+      'externalUrl': externalUrl,
+      'venueName': venueName,
+      'priceInfo': priceInfo,
+      'ticketStatus': ticketStatus,
     };
   }
 
@@ -107,7 +130,12 @@ class EventModel {
       'eventDate': eventDate.toIso8601String(),
       'createdBy': createdBy,
       'creatorName': creatorName,
-      'savedUsers':savedUsers
+      'savedUsers': savedUsers,
+      'source': source,
+      'externalUrl': externalUrl,
+      'venueName': venueName,
+      'priceInfo': priceInfo,
+      'ticketStatus': ticketStatus,
     };
   }
 
@@ -123,7 +151,12 @@ class EventModel {
     DateTime? eventDate,
     String? createdBy,
     String? creatorName,
-    Map<String,String>? savedUsers
+    Map<String,String>? savedUsers,
+    String? source,
+    String? externalUrl,
+    String? venueName,
+    String? priceInfo,
+    String? ticketStatus,
   }) {
     return EventModel(
       id: id ?? this.id,
@@ -139,7 +172,12 @@ class EventModel {
       createdBy: createdBy ?? this.createdBy,
       creatorName:
           creatorName ?? this.creatorName,
-          savedUsers: savedUsers??this.savedUsers
+          savedUsers: savedUsers??this.savedUsers,
+      source: source ?? this.source,
+      externalUrl: externalUrl ?? this.externalUrl,
+      venueName: venueName ?? this.venueName,
+      priceInfo: priceInfo ?? this.priceInfo,
+      ticketStatus: ticketStatus ?? this.ticketStatus,
     );
   }
 }

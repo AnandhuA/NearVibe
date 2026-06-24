@@ -49,24 +49,26 @@ class EventRepository {
   Future<void> saveEvent({
     required String userId,
     required String userName,
-    required String eventId,
+    required EventModel event,
   }) async {
     try {
       final batch = firestore.batch();
 
       // saved_events collection
-      final savedRef = firestore.collection('saved_events').doc();
+      final savedRef = firestore.collection('saved_events').doc('${userId}_${event.id}');
 
       batch.set(savedRef, {
         'userId': userId,
-        'eventId': eventId,
+        'eventId': event.id,
         'savedAt': FieldValue.serverTimestamp(),
+        if (event.source != 'user') 'eventData': event.toJson(),
       });
 
       // update event document
-      final eventRef = firestore.collection('events').doc(eventId);
-
-      batch.update(eventRef, {'savedUsers.$userId': userName});
+      if (event.source == 'user') {
+        final eventRef = firestore.collection('events').doc(event.id);
+        batch.update(eventRef, {'savedUsers.$userId': userName});
+      }
 
       await batch.commit();
     } catch (e) {
@@ -77,7 +79,7 @@ class EventRepository {
 
   Future<void> removeSavedEvent({
     required String userId,
-    required String eventId,
+    required EventModel event,
   }) async {
     try {
       final batch = firestore.batch();
@@ -85,16 +87,17 @@ class EventRepository {
       final snapshot = await firestore
           .collection('saved_events')
           .where('userId', isEqualTo: userId)
-          .where('eventId', isEqualTo: eventId)
+        .where('eventId', isEqualTo: event.id)
           .get();
 
       for (final doc in snapshot.docs) {
         batch.delete(doc.reference);
       }
 
-      final eventRef = firestore.collection('events').doc(eventId);
-
-      batch.update(eventRef, {'savedUsers.$userId': FieldValue.delete()});
+      if (event.source == 'user') {
+        final eventRef = firestore.collection('events').doc(event.id);
+        batch.update(eventRef, {'savedUsers.$userId': FieldValue.delete()});
+      }
 
       await batch.commit();
     } catch (e) {
@@ -110,19 +113,30 @@ class EventRepository {
         .snapshots()
         .asyncMap((savedSnapshot) async {
           final eventIds = savedSnapshot.docs
+              .where((e) => e.data()['eventData'] == null)
               .map((e) => e['eventId'] as String)
               .toList();
 
-          if (eventIds.isEmpty) return [];
+          final externalEvents = savedSnapshot.docs
+              .where((e) => e.data()['eventData'] != null)
+              .map((e) => EventModel.fromJson(
+                    Map<String, dynamic>.from(e.data()['eventData'] as Map),
+                  ))
+              .toList();
+
+          if (eventIds.isEmpty) return externalEvents;
 
           final eventSnapshot = await firestore
               .collection('events')
               .where(FieldPath.documentId, whereIn: eventIds)
               .get();
 
-          return eventSnapshot.docs
+          return [
+            ...eventSnapshot.docs
               .map((e) => EventModel.fromDocument(e))
-              .toList();
+              .toList(),
+            ...externalEvents,
+          ];
         });
   }
 }

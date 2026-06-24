@@ -84,6 +84,16 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                       Expanded(child: Text(event.creatorName)),
                     ],
                   ),
+                  if (event.venueName.isNotEmpty) ...[
+                    SizedBox(height: context.res.hxs),
+                    Row(
+                      children: [
+                        const Icon(Icons.stadium_outlined, size: 18),
+                        SizedBox(width: context.res.wxs),
+                        Expanded(child: Text(event.venueName)),
+                      ],
+                    ),
+                  ],
                   SizedBox(height: context.res.hxs),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,6 +138,21 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   SizedBox(height: context.res.hsm),
                   Text(event.description, style: AppTextStyles.bodyLarge),
 
+                  if (event.source == 'ticketmaster') ...[
+                    SizedBox(height: context.res.hsm),
+                    Text('Ticket information', style: AppTextStyles.titleLarge),
+                    if (event.ticketStatus.isNotEmpty)
+                      Padding(
+                        padding: EdgeInsets.only(top: context.res.hxs),
+                        child: Text('Status: ${event.ticketStatus}'),
+                      ),
+                    if (event.priceInfo.isNotEmpty)
+                      Padding(
+                        padding: EdgeInsets.only(top: context.res.hxs),
+                        child: Text('Price: ${event.priceInfo}'),
+                      ),
+                  ],
+
                   SizedBox(height: context.res.hsm),
 
                   // Container(
@@ -171,6 +196,14 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     onPressed: _openGoogleMaps,
                     child: Text("View on Google Maps"),
                   ),
+                  if (event.externalUrl.isNotEmpty) ...[
+                    SizedBox(height: context.res.hsm),
+                    OutlinedButton.icon(
+                      onPressed: _openExternalEvent,
+                      icon: const Icon(Icons.confirmation_number_outlined),
+                      label: const Text('View tickets on Ticketmaster'),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -196,6 +229,13 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       await launchUrl(webUri, mode: LaunchMode.externalApplication);
     } else {
       if (mounted) AppSnackBar.error(context, "Could not open Google Maps");
+    }
+  }
+
+  Future<void> _openExternalEvent() async {
+    final uri = Uri.tryParse(widget.event.externalUrl);
+    if (uri == null || !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      if (mounted) AppSnackBar.error(context, 'Could not open the Ticketmaster event page');
     }
   }
 }
@@ -307,9 +347,9 @@ class EventHeaderDelegate extends SliverPersistentHeaderDelegate {
                 return IconButton(
                   onPressed: () async {
                     if (isSaved) {
-                      await provider.unsaveEvent(event.id);
+                      await provider.unsaveEvent(event);
                     } else {
-                      await provider.saveEvent(event.id);
+                      await provider.saveEvent(event);
                     }
                   },
 

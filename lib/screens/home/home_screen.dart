@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:math' as math;
 
 import 'package:avatar_plus/avatar_plus.dart';
@@ -29,14 +30,34 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String? selectedCategory;
   String? selectedDistance;
+  bool _isInitialNearbyLoad = true;
 
   @override
   void initState() {
     super.initState();
 
-    Future.microtask(() {
-      context.read<EventProvider>().fetchEvents();
-    });
+    Future.microtask(_loadEvents);
+  }
+
+  Future<void> _loadEvents() async {
+    try {
+      final mapProvider = context.read<MapProvider>();
+      await mapProvider.getCurrentLocation();
+      if (!mounted) return;
+      final events = context.read<EventProvider>();
+      await events.fetchEvents();
+      final location = mapProvider.currentLocation;
+      log("current location $location");
+      if (location != null) {
+        log("calling");
+        await events.fetchNearbyExternalEvents(
+          latitude: location.latitude,
+          longitude: location.longitude,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isInitialNearbyLoad = false);
+    }
   }
 
   List<EventModel> filterEventsByCategoryAndDistance(
@@ -94,7 +115,8 @@ class _HomeScreenState extends State<HomeScreen> {
       (p) => p.events,
     );
 
-    final isLoading = context.select<EventProvider, bool>((p) => p.isLoading);
+    final isLoading =
+        _isInitialNearbyLoad || context.select<EventProvider, bool>((p) => p.isLoading);
     return AppScaffold(
       scrollable: true,
       appBar: AppBar(
