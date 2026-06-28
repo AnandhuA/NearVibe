@@ -38,14 +38,14 @@ class MyApp extends StatelessWidget {
             ExternalEventRepository()
           ),
         ),
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()..loadTheme()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
+            theme: AppTheme.lightTheme(themeProvider.accentColor),
+            darkTheme: AppTheme.darkTheme(themeProvider.accentColor),
             themeMode: themeProvider.themeMode,
             home: SplashScreen(),
             // home: OnboardingScreen(),

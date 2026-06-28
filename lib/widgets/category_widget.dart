@@ -17,11 +17,13 @@ class CategoryWidget extends StatelessWidget {
     this.isSelected = false,
     required this.bgColor,
     this.ontap,
-    this.titleColor
+    this.titleColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final foregroundColor = isSelected ? Colors.white : titleColor;
+
     return GestureDetector(
       onTap: ontap,
       child: Container(
@@ -34,13 +36,13 @@ class CategoryWidget extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (icon != null) Icon(icon, size: 18,color: titleColor,),
+            if (icon != null) Icon(icon, size: 18, color: foregroundColor),
             if (icon != null) SizedBox(width: context.res.wxs),
 
             Text(
               title,
               style: AppTextStyles.bodyLarge.copyWith(
-                color: titleColor,
+                color: foregroundColor,
                 fontWeight: FontWeight.w600,
               ),
             ),

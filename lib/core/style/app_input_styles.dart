@@ -3,8 +3,8 @@ import 'package:near_vibe/core/themes/app_colors.dart';
 
 class AppInputStyles {
   // ---------------- Light ----------------
-  static final InputDecorationTheme lightInputDecorationTheme =
-      InputDecorationTheme(
+  static InputDecorationTheme lightInputDecorationTheme(Color accentColor) {
+    return InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
 
@@ -38,8 +38,8 @@ class AppInputStyles {
 
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color: AppColors.lightPrimary,
+          borderSide: BorderSide(
+            color: accentColor,
             width: 1.5,
           ),
         ),
@@ -52,10 +52,11 @@ class AppInputStyles {
           ),
         ),
       );
+  }
 
   // ---------------- Dark ----------------
-  static final InputDecorationTheme darkInputDecorationTheme =
-      InputDecorationTheme(
+  static InputDecorationTheme darkInputDecorationTheme(Color accentColor) {
+    return InputDecorationTheme(
         filled: true,
         fillColor: AppColors.darkSurface,
 
@@ -89,8 +90,8 @@ class AppInputStyles {
 
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color: AppColors.darkPrimary,
+          borderSide: BorderSide(
+            color: accentColor,
             width: 1.5,
           ),
         ),
@@ -103,4 +104,5 @@ class AppInputStyles {
           ),
         ),
       );
+  }
 }

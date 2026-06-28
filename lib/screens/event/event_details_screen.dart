@@ -154,44 +154,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   ],
 
                   SizedBox(height: context.res.hsm),
-
-                  // Container(
-                  //   padding: const EdgeInsets.all(14),
-                  //   decoration: BoxDecoration(
-                  //     color: context.primary.withValues(alpha: .08),
-                  //     borderRadius: BorderRadius.circular(16),
-                  //   ),
-                  //   child: Column(
-                  //     // crossAxisAlignment: CrossAxisAlignment.start,
-                  //     children: [
-                  //       _AttendeesRow(
-                  //         attendees: event.savedUsers.entries.take(5).map((
-                  //           entry,
-                  //         ) {
-                  //           return {
-                  //             'initial': entry.value[0].toUpperCase(),
-                  //             'color':
-                  //                 Colors.primaries[entry.key.hashCode %
-                  //                     Colors.primaries.length],
-                  //           };
-                  //         }).toList(),
-                  //         goingCount: event.savedUsers.length,
-                  //         interestedCount: 0,
-                  //       ),
-                  //       SizedBox(height: context.res.hxs),
-                  //       Row(
-                  //         children: [
-                  //           const Icon(Icons.person_outline),
-                  //           SizedBox(width: context.res.wxs),
-                  //           Expanded(
-                  //             child: Text("Created by ${event.creatorName}"),
-                  //           ),
-                  //         ],
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                  SizedBox(height: context.res.hsm),
                   ElevatedButton(
                     onPressed: _openGoogleMaps,
                     child: Text("View on Google Maps"),
@@ -234,8 +196,13 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
   Future<void> _openExternalEvent() async {
     final uri = Uri.tryParse(widget.event.externalUrl);
-    if (uri == null || !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      if (mounted) AppSnackBar.error(context, 'Could not open the Ticketmaster event page');
+    if (uri == null ||
+        !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      if (mounted)
+        AppSnackBar.error(
+          context,
+          'Could not open the Ticketmaster event page',
+        );
     }
   }
 }
@@ -413,10 +380,7 @@ class _AttendeesRow extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: att['color'] as Color,
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: context.background,
-                      width: 1.5,
-                    ),
+                    border: Border.all(color: context.background, width: 1.5),
                   ),
                   child: Center(
                     child: Text(

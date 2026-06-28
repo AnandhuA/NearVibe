@@ -12,6 +12,7 @@ import 'package:near_vibe/providers/event_provider.dart';
 import 'package:near_vibe/providers/map_providers.dart';
 import 'package:near_vibe/screens/event/event_details_screen.dart';
 import 'package:near_vibe/widgets/app_loading.dart';
+import 'package:near_vibe/widgets/app_shimmer.dart';
 import 'package:near_vibe/widgets/app_snackbar.dart';
 import 'package:provider/provider.dart';
 
@@ -471,22 +472,18 @@ class _MapScreenState extends State<MapScreen> {
                   width: 90,
                   fit: BoxFit.cover,
 
-                  placeholder: (context, url) => Container(
+                  placeholder: (context, url) => ShimmerBox(
                     height: 90,
                     width: 90,
-                    alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                      gradient: AppColors.primaryGradient,
-                    ),
-                    child: const CircularProgressIndicator(),
+                    borderRadius: BorderRadius.circular(14),
                   ),
 
                   errorWidget: (context, url, error) => Container(
                     height: 90,
                     width: 90,
                     alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                      gradient: AppColors.primaryGradient,
+                    decoration: BoxDecoration(
+                      gradient: AppColors.primaryGradient(context.primary),
                     ),
                     child: const Icon(Icons.broken_image_rounded, size: 50),
                   ),

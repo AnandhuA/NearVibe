@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:near_vibe/core/responsive/responsive.dart';
 import 'package:near_vibe/core/themes/app_colors.dart';
+import 'package:near_vibe/core/themes/theme_extensions.dart';
 import 'package:near_vibe/core/utils/app_assets.dart';
 import 'package:near_vibe/widgets/app_scaffold.dart';
 
@@ -47,7 +48,7 @@ class OnboardingScreen extends StatelessWidget {
                   height: context.res.h(0.09),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(18),
-                    gradient: AppColors.primaryGradient,
+                    gradient: AppColors.primaryGradient(context.primary),
                     image: DecorationImage(
                       image: AssetImage(AppAssets.appLogo1024),
                     ),

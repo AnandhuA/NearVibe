@@ -14,8 +14,8 @@ import 'package:near_vibe/providers/event_provider.dart';
 import 'package:near_vibe/providers/map_providers.dart';
 import 'package:near_vibe/providers/user_provider.dart';
 import 'package:near_vibe/screens/event/event_details_screen.dart';
-import 'package:near_vibe/widgets/app_loading.dart';
 import 'package:near_vibe/widgets/app_scaffold.dart';
+import 'package:near_vibe/widgets/app_shimmer.dart';
 import 'package:near_vibe/widgets/card_widget.dart';
 import 'package:near_vibe/widgets/category_widget.dart';
 import 'package:provider/provider.dart';
@@ -28,7 +28,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String? selectedCategory;
+  String? selectedCategory = "All";
   String? selectedDistance;
   bool _isInitialNearbyLoad = true;
 
@@ -255,7 +255,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           SizedBox(height: context.res.hxs),
           if (isLoading)
-            Center(child: threeBounceLoading(context))
+            const HomeEventShimmer()
           else if (events.isEmpty)
             Padding(
               padding: EdgeInsets.only(top: context.res.hlg),
