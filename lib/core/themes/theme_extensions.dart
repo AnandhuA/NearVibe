@@ -5,8 +5,7 @@ extension ThemeColors on BuildContext {
   bool get isDarkMode => Theme.of(this).brightness == Brightness.dark;
 
   // PRIMARY
-  Color get primary =>
-      isDarkMode ? AppColors.darkPrimary : AppColors.lightPrimary;
+  Color get primary => Theme.of(this).colorScheme.primary;
 
   // SECONDARY
   Color get secondary =>
@@ -15,6 +14,10 @@ extension ThemeColors on BuildContext {
   // BACKGROUND
   Color get background =>
       isDarkMode ? AppColors.darkBackground : AppColors.lightBackground;
+
+  // SURFACE
+  Color get surface =>
+      isDarkMode ? AppColors.darkSurface : AppColors.lightSurface;
 
   // TEXT
   Color get text => isDarkMode ? AppColors.darkText : AppColors.lightText;

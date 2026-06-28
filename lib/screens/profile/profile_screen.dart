@@ -5,7 +5,9 @@ import 'package:near_vibe/core/responsive/responsive.dart';
 import 'package:near_vibe/core/style/app_text_styles.dart';
 import 'package:near_vibe/core/themes/theme_extensions.dart';
 import 'package:near_vibe/models/user_model.dart';
+import 'package:near_vibe/providers/theme_provider.dart';
 import 'package:near_vibe/providers/user_provider.dart' show UserProvider;
+import 'package:near_vibe/screens/profile/theme_screen.dart';
 import 'package:near_vibe/widgets/app_loading.dart';
 import 'package:near_vibe/widgets/app_scaffold.dart';
 import 'package:provider/provider.dart';
@@ -39,6 +41,8 @@ class ProfileScreen extends StatelessWidget {
 
   Column _buildProfile(BuildContext context, UserProvider provider) {
     final UserModel? user = provider.user;
+    final themeMode = context.watch<ThemeProvider>().themeMode;
+
     if (user == null) {
       return Column(
         mainAxisAlignment: .center,
@@ -46,6 +50,7 @@ class ProfileScreen extends StatelessWidget {
         children: [Center(child: threeBounceLoading(context))],
       );
     }
+
     final joinedDate = DateFormat('MMMM yyyy').format(user.createdAt);
     return Column(
       crossAxisAlignment: .stretch,
@@ -88,7 +93,13 @@ class ProfileScreen extends StatelessWidget {
               ? Icons.dark_mode_outlined
               : Icons.light_mode_outlined,
           label: 'Theme',
-          value: context.isDarkMode ? "Dark Mode" : "Light Mode",
+          value: _themeLabel(themeMode),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ThemeScreen()),
+            );
+          },
         ),
 
         _InfoTile(icon: Icons.info_outline, label: 'About'),
@@ -102,20 +113,35 @@ class ProfileScreen extends StatelessWidget {
       ],
     );
   }
+
+  String _themeLabel(ThemeMode mode) {
+    return switch (mode) {
+      ThemeMode.light => 'Light',
+      ThemeMode.dark => 'Dark',
+      ThemeMode.system => 'Follow System',
+    };
+  }
 }
 
 class _InfoTile extends StatelessWidget {
   final IconData icon;
   final String label;
   final String? value;
+  final VoidCallback? onTap;
 
-  const _InfoTile({required this.icon, required this.label, this.value});
+  const _InfoTile({
+    required this.icon,
+    required this.label,
+    this.value,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: ListTile(
+        onTap: onTap,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         tileColor: context.primary.withValues(alpha: 0.09),
         leading: Icon(icon, color: context.primary),
@@ -128,6 +154,9 @@ class _InfoTile extends StatelessWidget {
         subtitle: value == null
             ? null
             : Text(value!, style: AppTextStyles.bodyLarge),
+        trailing: onTap == null
+            ? null
+            : Icon(Icons.chevron_right_rounded, color: context.primary),
       ),
     );
   }

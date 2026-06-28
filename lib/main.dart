@@ -5,8 +5,10 @@ import 'package:near_vibe/firebase_options.dart';
 import 'package:near_vibe/providers/auth_provider.dart';
 import 'package:near_vibe/providers/event_provider.dart';
 import 'package:near_vibe/providers/map_providers.dart';
+import 'package:near_vibe/providers/theme_provider.dart';
 import 'package:near_vibe/providers/user_provider.dart';
 import 'package:near_vibe/repositories/event_repository.dart';
+import 'package:near_vibe/repositories/external_event_repository.dart';
 import 'package:near_vibe/repositories/local_storage_repository.dart';
 import 'package:near_vibe/repositories/upload_repository.dart';
 import 'package:near_vibe/screens/onboarding/splash_screen.dart';
@@ -33,15 +35,22 @@ class MyApp extends StatelessWidget {
             EventRepository(),
             UploadRepository(),
             LocalStorageRepository(),
+            ExternalEventRepository()
           ),
         ),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()..loadTheme()),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.system,
-        home: SplashScreen(),
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme(themeProvider.accentColor),
+            darkTheme: AppTheme.darkTheme(themeProvider.accentColor),
+            themeMode: themeProvider.themeMode,
+            home: SplashScreen(),
+            // home: OnboardingScreen(),
+          );
+        },
       ),
     );
   }

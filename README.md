@@ -70,6 +70,14 @@ flutter pub get
 flutter run
 ```
 
+### Ticketmaster nearby concerts
+
+On the free Firebase plan, the app fetches Ticketmaster concerts directly from
+Flutter. Add the Consumer Key to the ignored `lib/core/apikeys/api_key.dart`
+file under `TicketmasterConstants.apiKey`. The app applies a 60-second refresh
+cooldown and retains nearby results in memory for 30 minutes. User-created
+events remain in Firestore's `events` collection.
+
 ---
 
 ## Folder Structure

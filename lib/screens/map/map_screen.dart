@@ -12,6 +12,7 @@ import 'package:near_vibe/providers/event_provider.dart';
 import 'package:near_vibe/providers/map_providers.dart';
 import 'package:near_vibe/screens/event/event_details_screen.dart';
 import 'package:near_vibe/widgets/app_loading.dart';
+import 'package:near_vibe/widgets/app_shimmer.dart';
 import 'package:near_vibe/widgets/app_snackbar.dart';
 import 'package:provider/provider.dart';
 
@@ -65,13 +66,6 @@ class _MapScreenState extends State<MapScreen> {
     // final selectedEvent = context.watch<MapProvider>().selectedEvent;
     final selectedEvent = provider.selectedEvent;
 
-    Offset? markerOffset;
-
-    if (selectedEvent != null) {
-      markerOffset = mapController.camera.latLngToScreenOffset(
-        LatLng(selectedEvent.latitude, selectedEvent.longitude),
-      );
-    }
     return Scaffold(
       body: provider.isLoading
           ? Center(child: threeBounceLoading(context))
@@ -135,97 +129,126 @@ class _MapScreenState extends State<MapScreen> {
                   top: provider.isLocationOff
                       ? 100
                       : 60, // ← shift down if banner visible
-                  left: 20,
-                  right: 20,
+                  left: 16,
+                  right: 16,
                   child: Column(
                     children: [
-                      TextField(
-                        decoration: InputDecoration(
-                          prefixIcon: Icon(
-                            Icons.location_pin,
-                            color: context.primary,
+                      Container(
+                        decoration: BoxDecoration(
+                          color: context.surface,
+                          borderRadius: BorderRadius.circular(22),
+                          border: Border.all(
+                            color: context.primary.withValues(alpha: 0.12),
                           ),
-                          suffixIcon: provider.searchResults.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear),
-                                  onPressed: () {
-                                    context.read<MapProvider>().clearSearch();
-                                    FocusScope.of(context).unfocus();
-                                  },
-                                )
-                              : provider.isSearching
-                              ? const Padding(
-                                  padding: EdgeInsets.all(12),
-                                  child: SizedBox(
-                                    width: 18,
-                                    height: 18,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  ),
-                                )
-                              : null,
-
-                          hintText: "Search",
+                          boxShadow: [
+                            BoxShadow(
+                              blurRadius: 18,
+                              offset: const Offset(0, 8),
+                              color: Colors.black.withValues(alpha: .12),
+                            ),
+                          ],
                         ),
-                        onChanged: (value) {
-                          Future.delayed(const Duration(milliseconds: 400), () {
-                            context.read<MapProvider>().searchLocation(value);
-                          });
-                        },
+                        child: TextField(
+                          decoration: InputDecoration(
+                            hintText: "Search location",
+                            // border: InputBorder.none,
+                            // enabledBorder: OutlineInputBorder(
+                            //   borderSide: BorderSide(color: Colors.transparent),
+                            // ),
+                            // focusedBorder: OutlineInputBorder(
+                            //   borderSide: BorderSide(color: Colors.transparent),
+                            // ),
+                            prefixIcon: Icon(
+                              Icons.search_rounded,
+                              color: context.primary,
+                            ),
+                            suffixIcon: provider.searchResults.isNotEmpty
+                                ? IconButton(
+                                    icon: const Icon(Icons.close_rounded),
+                                    onPressed: () {
+                                      context.read<MapProvider>().clearSearch();
+                                      FocusScope.of(context).unfocus();
+                                    },
+                                  )
+                                : provider.isSearching
+                                ? const Padding(
+                                    padding: EdgeInsets.all(12),
+                                    child: SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    ),
+                                  )
+                                : null,
+                          ),
+                          onChanged: (value) {
+                            Future.delayed(
+                              const Duration(milliseconds: 400),
+                              () {
+                                context.read<MapProvider>().searchLocation(
+                                  value,
+                                );
+                              },
+                            );
+                          },
+                        ),
                       ),
                       if (provider.searchResults.isNotEmpty)
-                  Container(
-                    margin: const EdgeInsets.only(top: 4),
-                    decoration: BoxDecoration(
-                      color: context.background,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          blurRadius: 10,
-                          color: Colors.black.withValues(alpha: .12),
+                        Container(
+                          margin: const EdgeInsets.only(top: 8),
+                          constraints: BoxConstraints(
+                            maxHeight: context.res.h(0.32),
+                          ),
+                          decoration: BoxDecoration(
+                            color: context.surface,
+                            borderRadius: BorderRadius.circular(18),
+                            boxShadow: [
+                              BoxShadow(
+                                blurRadius: 18,
+                                offset: const Offset(0, 8),
+                                color: Colors.black.withValues(alpha: .12),
+                              ),
+                            ],
+                          ),
+                          child: ListView.separated(
+                            shrinkWrap: true,
+                            itemCount: provider.searchResults.length,
+                            separatorBuilder: (_, _) => Divider(
+                              height: 1,
+                              color: context.primary.withValues(alpha: .08),
+                            ),
+                            itemBuilder: (context, i) {
+                              final result = provider.searchResults[i];
+                              return ListTile(
+                                dense: true,
+                                leading: Icon(
+                                  Icons.place_outlined,
+                                  color: context.primary,
+                                ),
+                                title: Text(
+                                  result['name'] as String,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTextStyles.bodySmall,
+                                ),
+                                onTap: () {
+                                  final target = LatLng(
+                                    result['lat'] as double,
+                                    result['lon'] as double,
+                                  );
+                                  mapController.move(target, 15);
+                                  context.read<MapProvider>().clearSearch();
+                                  FocusScope.of(context).unfocus();
+                                },
+                              );
+                            },
+                          ),
                         ),
-                      ],
-                    ),
-                    child: ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: provider.searchResults.length,
-                      separatorBuilder: (_, _) => const Divider(height: 1),
-                      itemBuilder: (context, i) {
-                        final result = provider.searchResults[i];
-                        return ListTile(
-                          dense: true,
-                          leading: Icon(
-                            Icons.place_outlined,
-                            color: context.primary,
-                          ),
-                          title: Text(
-                            result['name'] as String,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.bodySmall,
-                          ),
-                          onTap: () {
-                            final target = LatLng(
-                              result['lat'] as double,
-                              result['lon'] as double,
-                            );
-                            mapController.move(target, 15);
-                            context.read<MapProvider>().clearSearch();
-                            FocusScope.of(context).unfocus();
-                          },
-                        );
-                      },
-                    ),
-                  ),
                     ],
                   ),
                 ),
-
-               
-
-
 
                 if (provider.isLocationOff)
                   Positioned(
@@ -279,11 +302,45 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ),
 
-                //==============event detail =========
-                if (selectedEvent != null && markerOffset != null)
+                Positioned(
+                  right: 16,
+                  top: provider.isLocationOff ? 164 : 126,
+                  child: Column(
+                    children: [
+                      _mapControlButton(
+                        icon: Icons.add_rounded,
+                        onTap: () {
+                          final camera = mapController.camera;
+                          mapController.move(camera.center, camera.zoom + 1);
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      _mapControlButton(
+                        icon: Icons.remove_rounded,
+                        onTap: () {
+                          final camera = mapController.camera;
+                          mapController.move(camera.center, camera.zoom - 1);
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      _mapControlButton(
+                        icon: Icons.my_location_rounded,
+                        onTap: () {
+                          final location = provider.currentLocation;
+                          if (location != null) {
+                            mapController.move(location, 15);
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+
+                if (selectedEvent != null)
                   Positioned(
-                    left: markerOffset.dx - 120,
-                    top: markerOffset.dy - 120,
+                    left: 16,
+                    right: 16,
+                    bottom: MediaQuery.of(context).size.height * 0.24 + 16,
                     child: GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -297,32 +354,30 @@ class _MapScreenState extends State<MapScreen> {
                       child: Material(
                         color: Colors.transparent,
                         child: Container(
-                          width: context.res.w(0.6),
-                          height: context.res.h(0.1),
-                          padding: const EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: context.background,
-                            borderRadius: BorderRadius.circular(16),
+                            color: context.surface,
+                            borderRadius: BorderRadius.circular(22),
+                            border: Border.all(
+                              color: context.primary.withValues(alpha: .12),
+                            ),
                             boxShadow: [
                               BoxShadow(
-                                blurRadius: 10,
-                                color: Colors.black.withValues(alpha: .15),
+                                blurRadius: 24,
+                                offset: const Offset(0, 12),
+                                color: Colors.black.withValues(alpha: .18),
                               ),
                             ],
                           ),
-
                           child: Row(
                             children: [
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(12),
-                                child: Hero(
-                                  tag: 'event_${selectedEvent.id}',
-                                  child: CachedNetworkImage(
-                                    imageUrl: selectedEvent.imageUrl,
-                                    width: 70,
-                                    height: 70,
-                                    fit: BoxFit.cover,
-                                  ),
+                                child: CachedNetworkImage(
+                                  imageUrl: selectedEvent.imageUrl,
+                                  width: 64,
+                                  height: 64,
+                                  fit: BoxFit.cover,
                                 ),
                               ),
 
@@ -337,21 +392,49 @@ class _MapScreenState extends State<MapScreen> {
                                       selectedEvent.title,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
+                                      style: AppTextStyles.titleMedium.copyWith(
+                                        fontWeight: FontWeight.w700,
+                                      ),
                                     ),
-
-                                    Text(
-                                      selectedEvent.category,
-                                      overflow: TextOverflow.ellipsis,
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          getIcon(selectedEvent.category),
+                                          size: 14,
+                                          color: context.primary,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Expanded(
+                                          child: Text(
+                                            selectedEvent.category,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: AppTextStyles.bodySmall
+                                                .copyWith(
+                                                  color: context.primary,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-
+                                    const SizedBox(height: 4),
                                     Text(
                                       formatEventDateWithoutYear(
                                         selectedEvent.eventDate,
                                       ),
                                       overflow: TextOverflow.ellipsis,
+                                      style: AppTextStyles.bodySmall.copyWith(
+                                        color: context.hitText,
+                                      ),
                                     ),
                                   ],
                                 ),
+                              ),
+                              const SizedBox(width: 8),
+                              Icon(
+                                Icons.chevron_right_rounded,
+                                color: context.primary,
                               ),
                             ],
                           ),
@@ -361,20 +444,25 @@ class _MapScreenState extends State<MapScreen> {
                   ),
                 // ================= BOTTOM SHEET =================
                 DraggableScrollableSheet(
-                  initialChildSize: 0.30,
-                  minChildSize: 0.20,
-                  maxChildSize: 0.80,
+                  initialChildSize: 0.24,
+                  minChildSize: 0.16,
+                  maxChildSize: 0.72,
 
                   builder: (context, scrollController) {
                     return Container(
-                      padding: const EdgeInsets.all(24),
-
+                      padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
                       decoration: BoxDecoration(
                         color: context.background,
-
                         borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(30),
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: .16),
+                            blurRadius: 24,
+                            offset: const Offset(0, -8),
+                          ),
+                        ],
                       ),
 
                       child: Column(
@@ -384,42 +472,70 @@ class _MapScreenState extends State<MapScreen> {
                           // Handle
                           Center(
                             child: Container(
-                              width: 50,
-                              height: 5,
-
+                              width: 44,
+                              height: 4,
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade400,
+                                color: context.hitText.withValues(alpha: .35),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                             ),
                           ),
 
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 14),
 
-                          Text(
-                            "${events.length} Events Nearby",
-                            style: AppTextStyles.headlineSmall.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  "Events Nearby",
+                                  style: AppTextStyles.headlineSmall.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: context.primary.withValues(alpha: .12),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  "${events.length}",
+                                  style: AppTextStyles.bodySmall.copyWith(
+                                    color: context.primary,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
 
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 14),
 
                           Expanded(
-                            child: ListView.separated(
-                              controller: scrollController,
-
-                              itemCount: events.length,
-
-                              separatorBuilder: (context, index) {
-                                return const SizedBox(height: 16);
-                              },
-
-                              itemBuilder: (context, index) {
-                                final EventModel event = events[index];
-                                return eventCard(context, event);
-                              },
-                            ),
+                            child: events.isEmpty
+                                ? Center(
+                                    child: Text(
+                                      "No events found near this area",
+                                      style: AppTextStyles.bodyMedium.copyWith(
+                                        color: context.hitText,
+                                      ),
+                                    ),
+                                  )
+                                : ListView.separated(
+                                    controller: scrollController,
+                                    itemCount: events.length,
+                                    separatorBuilder: (context, index) {
+                                      return const SizedBox(height: 12);
+                                    },
+                                    itemBuilder: (context, index) {
+                                      final EventModel event = events[index];
+                                      return eventCard(context, event);
+                                    },
+                                  ),
                           ),
                         ],
                       ),
@@ -442,17 +558,15 @@ class _MapScreenState extends State<MapScreen> {
         );
       },
       child: Container(
-        padding: const EdgeInsets.all(16),
-
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: context.isDarkMode ? const Color(0xFF1C1C28) : Colors.white,
-
-          borderRadius: BorderRadius.circular(22),
-
+          color: context.primary.withValues(alpha: .07),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: context.primary.withValues(alpha: .10)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 10,
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 12,
             ),
           ],
         ),
@@ -466,27 +580,22 @@ class _MapScreenState extends State<MapScreen> {
                 tag: 'event_${event.id}',
                 child: CachedNetworkImage(
                   imageUrl: event.imageUrl,
-                  height: 90,
-
-                  width: 90,
+                  height: 78,
+                  width: 78,
                   fit: BoxFit.cover,
 
-                  placeholder: (context, url) => Container(
-                    height: 90,
-                    width: 90,
-                    alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                      gradient: AppColors.primaryGradient,
-                    ),
-                    child: const CircularProgressIndicator(),
+                  placeholder: (context, url) => ShimmerBox(
+                    height: 78,
+                    width: 78,
+                    borderRadius: BorderRadius.circular(14),
                   ),
 
                   errorWidget: (context, url, error) => Container(
-                    height: 90,
-                    width: 90,
+                    height: 78,
+                    width: 78,
                     alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                      gradient: AppColors.primaryGradient,
+                    decoration: BoxDecoration(
+                      gradient: AppColors.primaryGradient(context.primary),
                     ),
                     child: const Icon(Icons.broken_image_rounded, size: 50),
                   ),
@@ -494,7 +603,7 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
 
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
 
             // ================= DETAILS =================
             Expanded(
@@ -506,7 +615,7 @@ class _MapScreenState extends State<MapScreen> {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
+                          horizontal: 9,
                           vertical: 4,
                         ),
 
@@ -520,33 +629,39 @@ class _MapScreenState extends State<MapScreen> {
                           event.category,
                           style: AppTextStyles.bodySmall.copyWith(
                             color: context.primary,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
 
                       const Spacer(),
 
-                      Icon(getIcon(event.category), color: context.hitText),
+                      Icon(
+                        getIcon(event.category),
+                        color: context.hitText,
+                        size: 18,
+                      ),
                     ],
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
 
                   Text(
                     event.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.titleMedium.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
 
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
 
                   Row(
                     children: [
                       Icon(
                         Icons.location_on_rounded,
-                        size: 18,
+                        size: 16,
                         color: context.hitText,
                       ),
 
@@ -572,22 +687,25 @@ class _MapScreenState extends State<MapScreen> {
                     ],
                   ),
 
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
 
                   Row(
                     children: [
                       Icon(
                         Icons.access_time_rounded,
-                        size: 18,
+                        size: 16,
                         color: context.hitText,
                       ),
 
                       const SizedBox(width: 6),
 
-                      Text(
-                        formatEventDate(event.eventDate),
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: context.hitText,
+                      Expanded(
+                        child: Text(
+                          formatEventDate(event.eventDate),
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: context.hitText,
+                          ),
                         ),
                       ),
                     ],
@@ -618,48 +736,68 @@ class _MapScreenState extends State<MapScreen> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            if (!active)
-              Icon(
-                Icons.location_on_rounded,
-                color: color,
-                size: active ? 52 : 44,
+            if (active) ...[
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: .18),
+                  shape: BoxShape.circle,
+                ),
               ),
-
-            if (active) Icon(Icons.my_location, color: color, size: 14),
+              Container(
+                width: 16,
+                height: 16,
+                decoration: BoxDecoration(
+                  color: color,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 3),
+                ),
+              ),
+            ] else ...[
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: .16),
+                  shape: BoxShape.circle,
+                ),
+              ),
+              Icon(Icons.location_on_rounded, color: color, size: 40),
+            ],
           ],
         ),
       ),
     );
   }
 
-  //======ON TAP ON MARKER ====
-  void showEventDetails(EventModel event) {
-    showModalBottomSheet(
-      context: context,
-      builder: (_) {
-        return Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(event.title, style: AppTextStyles.headlineSmall),
-
-              const SizedBox(height: 10),
-
-              Text(event.description),
-
-              const SizedBox(height: 10),
-
-              Text("Category: ${event.category}"),
-
-              Text("Created By: ${event.creatorName}"),
-
-              Text(event.eventDate.toString()),
+  Widget _mapControlButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: context.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: context.primary.withValues(alpha: .12)),
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+                color: Colors.black.withValues(alpha: .12),
+              ),
             ],
           ),
-        );
-      },
+          child: Icon(icon, color: context.primary),
+        ),
+      ),
     );
   }
 }

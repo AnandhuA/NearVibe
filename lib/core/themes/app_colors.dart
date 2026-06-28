@@ -13,9 +13,6 @@ class AppColors {
   static const Color lightPrimary = primary;
   static const Color lightSecondary = secondary;
 
-  static const Color lightBackground = Color(0xFFF8F8FC);
-  static const Color lightSurface = Color(0xFFFFFFFF);
-
   static const Color lightText = Color(0xFF111827);
   static const Color lightHintText = Color(0xFF6B7280);
   static const Color lightBorder = Color(0xFFE5E7EB);
@@ -27,9 +24,11 @@ class AppColors {
   static const Color darkSecondary = secondary;
 
   // Main dark background
-  static const Color darkBackground = Color(0xFF0F0F14);
-
+  static const Color darkBackground = Color.fromARGB(255, 0, 0, 0);
+  static const Color lightBackground = Color.fromARGB(255, 255, 255, 255);
   // Card / surface colors
+
+  static const Color lightSurface = Color(0xFFFFFFFF);
   static const Color darkSurface = Color(0xFF18181F);
   static const Color darkCard = Color(0xFF1F1F28);
 
@@ -81,18 +80,20 @@ class AppColors {
   // =========================
   // Gradients
   // =========================
-  static const LinearGradient primaryGradient = LinearGradient(
-    colors: [
-      Color.fromARGB(255, 18, 5, 41),
-      Color(0x667C3AED),
-      Color(0xFF9F67FF),
-    ],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
+  static LinearGradient primaryGradient(Color accentColor) {
+    return LinearGradient(
+      colors: [
+        Color.lerp(Colors.black, accentColor, 0.35)!,
+        accentColor.withValues(alpha: 0.65),
+        Color.lerp(accentColor, Colors.white, 0.28)!,
+      ],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    );
+  }
 
   //====MARKER COLORS ===
- static final List<Color> markerColors = [
+  static final List<Color> markerColors = [
     Colors.red,
     Colors.green,
     Colors.orange,

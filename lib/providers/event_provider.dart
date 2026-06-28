@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:near_vibe/models/event_model.dart';
 import 'package:near_vibe/repositories/event_repository.dart';
+import 'package:near_vibe/repositories/external_event_repository.dart';
 import 'package:near_vibe/repositories/local_storage_repository.dart';
 import 'package:near_vibe/repositories/upload_repository.dart';
 
@@ -14,18 +15,25 @@ class EventProvider extends ChangeNotifier {
   final EventRepository repository;
   final UploadRepository uploadRepository;
   final LocalStorageRepository localStorageRepository;
+  final ExternalEventRepository externalEventRepository;
 
   EventProvider(
     this.repository,
     this.uploadRepository,
     this.localStorageRepository,
-  );
+    ExternalEventRepository? externalEventRepository,
+  ) : externalEventRepository =
+          externalEventRepository ?? ExternalEventRepository();
 
-  List<EventModel> _events = [];
+  List<EventModel> _userEvents = [];
+  List<EventModel> _externalEvents = [];
 
-  List<EventModel> get events => _events;
+  List<EventModel> get events =>
+      [..._userEvents, ..._externalEvents]
+        ..sort((a, b) => a.eventDate.compareTo(b.eventDate));
   bool _isLoading = false;
   String? _error;
+  bool _didCleanupPastEvents = false;
 
   bool get isLoading => _isLoading;
   String? get error => _error;
@@ -52,7 +60,7 @@ class EventProvider extends ChangeNotifier {
     required double latitude,
     required double longitude,
     required DateTime eventDate,
-    required File imageFile,
+    required List<File> imageFiles,
     // required File imageFile,
   }) async {
     try {
@@ -62,15 +70,16 @@ class EventProvider extends ChangeNotifier {
 
       //fetch user data
       final user = await localStorageRepository.getUser();
-      // Upload image
-      final imageUrl = await uploadRepository.uploadImage(imageFile);
+      // Upload images
+      final imageUrls = await uploadRepository.uploadImages(imageFiles);
       // add location hash
       final geoPoint = GeoFirePoint(GeoPoint(latitude, longitude));
 
       final event = EventModel(
         title: title,
         description: description,
-        imageUrl: imageUrl,
+        imageUrl: imageUrls.first,
+        imageUrls: imageUrls,
         category: category,
 
         latitude: latitude,
@@ -97,6 +106,22 @@ class EventProvider extends ChangeNotifier {
 
   //=====GET ALL EVENTS ============
 
+  Future<void> cleanupPastEvents() async {
+    if (_didCleanupPastEvents) return;
+
+    try {
+      _didCleanupPastEvents = true;
+      final deletedCount = await repository.deletePastEvents();
+      if (deletedCount > 0) {
+        log('[Events] Deleted $deletedCount past events.');
+      }
+    } catch (e) {
+      _error = e.toString();
+      log('[Events] Past-event cleanup error: $e');
+      notifyListeners();
+    }
+  }
+
   Future<void> fetchEvents() async {
     _isLoading = true;
     notifyListeners();
@@ -105,7 +130,7 @@ class EventProvider extends ChangeNotifier {
       _eventSubscription?.cancel();
 
       _eventSubscription = repository.getEvents().listen((events) {
-        _events = events;
+        _userEvents = events;
 
         _isLoading = false;
 
@@ -120,8 +145,29 @@ class EventProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> fetchNearbyExternalEvents({
+    required double latitude,
+    required double longitude,
+    double radiusKm = 20,
+  }) async {
+    try {
+      _externalEvents = await externalEventRepository.getNearbyEvents(
+        latitude: latitude,
+        longitude: longitude,
+        radiusKm: radiusKm,
+      );
+      log("$_externalEvents");
+    } catch (e) {
+      // Community events remain available if the provider is temporarily down.
+      _error = e.toString();
+      log('[Ticketmaster] Nearby-event fetch error: $e');
+    } finally {
+      notifyListeners();
+    }
+  }
+
   //===== ADD SAVED EVENT =====
-  Future<void> saveEvent(String eventId) async {
+  Future<void> saveEvent(EventModel event) async {
     try {
       final user = await localStorageRepository.getUser();
       log("$user");
@@ -129,10 +175,10 @@ class EventProvider extends ChangeNotifier {
 
       await repository.saveEvent(
         userId: user.id,
-        eventId: eventId,
         userName: user.name,
+        event: event,
       );
-      _savedEventIds.add(eventId);
+      _savedEventIds.add(event.id);
     } catch (e) {
       _error = e.toString();
 
@@ -141,15 +187,15 @@ class EventProvider extends ChangeNotifier {
   }
 
   //==== REMOVE SAVED EVENT ====
-  Future<void> unsaveEvent(String eventId) async {
+  Future<void> unsaveEvent(EventModel event) async {
     log("unsave work ");
     try {
       final user = await localStorageRepository.getUser();
 
       if (user == null) return;
 
-      await repository.removeSavedEvent(userId: user.id, eventId: eventId);
-      _savedEventIds.remove(eventId);
+      await repository.removeSavedEvent(userId: user.id, event: event);
+      _savedEventIds.remove(event.id);
     } catch (e) {
       _error = e.toString();
       notifyListeners();

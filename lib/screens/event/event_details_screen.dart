@@ -22,31 +22,26 @@ class EventDetailsScreen extends StatefulWidget {
 }
 
 class _EventDetailsScreenState extends State<EventDetailsScreen> {
-  final ScrollController _scrollController = ScrollController();
+  late final PageController _imagePageController;
+  int _selectedImageIndex = 0;
+
+  List<String> get _imageUrls {
+    final urls = widget.event.imageUrls.isNotEmpty
+        ? widget.event.imageUrls
+        : [widget.event.imageUrl];
+
+    return urls.where((url) => url.isNotEmpty).toList();
+  }
 
   @override
   void initState() {
     super.initState();
-
-    _scrollController.addListener(() {
-      setState(() {});
-    });
-    Future.microtask(() {
-      final provider = context.read<EventProvider>();
-
-      provider.addListener(() {
-        if (provider.error != null) {
-          AppSnackBar.error(context, provider.error!);
-
-          provider.clearError();
-        }
-      });
-    });
+    _imagePageController = PageController();
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    _imagePageController.dispose();
     super.dispose();
   }
 
@@ -55,126 +50,133 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     final event = widget.event;
 
     return AppScaffold(
-      child: CustomScrollView(
-        controller: _scrollController,
-        slivers: [
-          SliverPersistentHeader(
-            pinned: true,
+      scrollable: true,
+      appBar: AppBar(
+        scrolledUnderElevation: 0,
+        backgroundColor: Colors.transparent,
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+        ),
+        title: Text(event.title, style: AppTextStyles.headlineMedium),
+        actions: [
+          Consumer<EventProvider>(
+            builder: (context, provider, _) {
+              final isSaved = provider.isEventSaved(event.id);
 
-            delegate: EventHeaderDelegate(event),
+              return IconButton(
+                onPressed: () async {
+                  if (isSaved) {
+                    await provider.unsaveEvent(event);
+                  } else {
+                    await provider.saveEvent(event);
+                  }
+                },
+                icon: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  child: Icon(
+                    isSaved
+                        ? Icons.bookmark_rounded
+                        : Icons.bookmark_border_rounded,
+                    key: ValueKey(isSaved),
+                    color: isSaved ? context.primary : null,
+                  ),
+                ),
+              );
+            },
           ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    children: [
-                      Icon(getIcon(event.category), size: 18),
-                      SizedBox(width: context.res.wxs),
-                      Text(event.category),
-                    ],
-                  ),
-                  SizedBox(height: context.res.hxs),
-                  Row(
-                    children: [
-                      const Icon(Icons.person, size: 18),
-                      SizedBox(width: context.res.wxs),
-                      Expanded(child: Text(event.creatorName)),
-                    ],
-                  ),
-                  SizedBox(height: context.res.hxs),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Icon(Icons.location_on, size: 18),
-                      SizedBox(width: context.res.wxs),
-                      Expanded(
-                        child: FutureBuilder<String>(
-                          future: getAddressFromLatLng(
-                            event.latitude,
-                            event.longitude,
-                          ),
-                          builder: (context, snapshot) {
-                            return Text(
-                              snapshot.data ?? 'Loading location...',
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                color: context.hitText,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (event.savedUsers.isNotEmpty)
-                    SizedBox(height: context.res.hsm),
-                  if (event.savedUsers.isNotEmpty)
-                    _AttendeesRow(
-                      attendees: event.savedUsers.entries.take(5).map((entry) {
-                        return {
-                          'initial': entry.value[0].toUpperCase(),
-                          'color':
-                              Colors.primaries[entry.key.hashCode %
-                                  Colors.primaries.length],
-                        };
-                      }).toList(),
-                      goingCount: event.savedUsers.length,
-                      interestedCount: 0,
-                    ),
-                  SizedBox(height: context.res.hsm),
-                  Text('About Event', style: AppTextStyles.titleLarge),
-                  SizedBox(height: context.res.hsm),
-                  Text(event.description, style: AppTextStyles.bodyLarge),
-
-                  SizedBox(height: context.res.hsm),
-
-                  // Container(
-                  //   padding: const EdgeInsets.all(14),
-                  //   decoration: BoxDecoration(
-                  //     color: context.primary.withValues(alpha: .08),
-                  //     borderRadius: BorderRadius.circular(16),
-                  //   ),
-                  //   child: Column(
-                  //     // crossAxisAlignment: CrossAxisAlignment.start,
-                  //     children: [
-                  //       _AttendeesRow(
-                  //         attendees: event.savedUsers.entries.take(5).map((
-                  //           entry,
-                  //         ) {
-                  //           return {
-                  //             'initial': entry.value[0].toUpperCase(),
-                  //             'color':
-                  //                 Colors.primaries[entry.key.hashCode %
-                  //                     Colors.primaries.length],
-                  //           };
-                  //         }).toList(),
-                  //         goingCount: event.savedUsers.length,
-                  //         interestedCount: 0,
-                  //       ),
-                  //       SizedBox(height: context.res.hxs),
-                  //       Row(
-                  //         children: [
-                  //           const Icon(Icons.person_outline),
-                  //           SizedBox(width: context.res.wxs),
-                  //           Expanded(
-                  //             child: Text("Created by ${event.creatorName}"),
-                  //           ),
-                  //         ],
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                  SizedBox(height: context.res.hsm),
-                  ElevatedButton(
-                    onPressed: _openGoogleMaps,
-                    child: Text("View on Google Maps"),
-                  ),
-                ],
-              ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _ImageGallery(
+            heroTag: 'event_${event.id}',
+            imageUrls: _imageUrls,
+            pageController: _imagePageController,
+            selectedIndex: _selectedImageIndex,
+            onPageChanged: (index) {
+              setState(() => _selectedImageIndex = index);
+            },
+            onThumbnailTap: (index) {
+              setState(() => _selectedImageIndex = index);
+              _imagePageController.animateToPage(
+                index,
+                duration: const Duration(milliseconds: 260),
+                curve: Curves.easeOut,
+              );
+            },
+          ),
+          SizedBox(height: context.res.hsm),
+          _InfoRow(icon: getIcon(event.category), text: event.category),
+          SizedBox(height: context.res.hxs),
+          _InfoRow(icon: Icons.person, text: event.creatorName),
+          if (event.venueName.isNotEmpty) ...[
+            SizedBox(height: context.res.hxs),
+            _InfoRow(icon: Icons.stadium_outlined, text: event.venueName),
+          ],
+          SizedBox(height: context.res.hxs),
+          FutureBuilder<String>(
+            future: getAddressFromLatLng(event.latitude, event.longitude),
+            builder: (context, snapshot) {
+              return _InfoRow(
+                icon: Icons.location_on,
+                text: snapshot.data ?? 'Loading location...',
+                textColor: context.hitText,
+              );
+            },
+          ),
+          SizedBox(height: context.res.hxs),
+          _InfoRow(
+            icon: Icons.access_time_rounded,
+            text: formatEventDate(event.eventDate),
+            textColor: context.hitText,
+          ),
+          if (event.savedUsers.isNotEmpty) ...[
+            SizedBox(height: context.res.hsm),
+            _AttendeesRow(
+              attendees: event.savedUsers.entries.take(5).map((entry) {
+                return {
+                  'initial': entry.value[0].toUpperCase(),
+                  'color': Colors
+                      .primaries[entry.key.hashCode % Colors.primaries.length],
+                };
+              }).toList(),
+              goingCount: event.savedUsers.length,
+              interestedCount: 0,
             ),
+          ],
+          SizedBox(height: context.res.hmd),
+          Text('About Event', style: AppTextStyles.titleLarge),
+          SizedBox(height: context.res.hsm),
+          Text(event.description, style: AppTextStyles.bodyLarge),
+          if (event.source == 'ticketmaster') ...[
+            SizedBox(height: context.res.hmd),
+            Text('Ticket information', style: AppTextStyles.titleLarge),
+            if (event.ticketStatus.isNotEmpty)
+              Padding(
+                padding: EdgeInsets.only(top: context.res.hxs),
+                child: Text('Status: ${event.ticketStatus}'),
+              ),
+            if (event.priceInfo.isNotEmpty)
+              Padding(
+                padding: EdgeInsets.only(top: context.res.hxs),
+                child: Text('Price: ${event.priceInfo}'),
+              ),
+          ],
+          SizedBox(height: context.res.hmd),
+          ElevatedButton(
+            onPressed: _openGoogleMaps,
+            child: const Text("View on Google Maps"),
           ),
+          if (event.externalUrl.isNotEmpty) ...[
+            SizedBox(height: context.res.hsm),
+            OutlinedButton.icon(
+              onPressed: _openExternalEvent,
+              icon: const Icon(Icons.confirmation_number_outlined),
+              label: const Text('View tickets on Ticketmaster'),
+            ),
+          ],
         ],
       ),
     );
@@ -184,7 +186,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     final double lat = widget.event.latitude;
     final double lng = widget.event.longitude;
 
-    // Try native Google Maps app first
     final nativeUri = Uri.parse('geo:$lat,$lng?q=$lat,$lng');
     final webUri = Uri.parse(
       'https://www.google.com/maps/search/?api=1&query=$lat,$lng',
@@ -198,134 +199,138 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       if (mounted) AppSnackBar.error(context, "Could not open Google Maps");
     }
   }
+
+  Future<void> _openExternalEvent() async {
+    final uri = Uri.tryParse(widget.event.externalUrl);
+    if (uri == null ||
+        !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      if (mounted) {
+        AppSnackBar.error(
+          context,
+          'Could not open the Ticketmaster event page',
+        );
+      }
+    }
+  }
 }
 
-class EventHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final EventModel event;
+class _ImageGallery extends StatelessWidget {
+  final String heroTag;
+  final List<String> imageUrls;
+  final PageController pageController;
+  final int selectedIndex;
+  final ValueChanged<int> onPageChanged;
+  final ValueChanged<int> onThumbnailTap;
 
-  EventHeaderDelegate(this.event);
+  const _ImageGallery({
+    required this.heroTag,
+    required this.imageUrls,
+    required this.pageController,
+    required this.selectedIndex,
+    required this.onPageChanged,
+    required this.onThumbnailTap,
+  });
 
   @override
-  double get minExtent => kToolbarHeight + 20;
+  Widget build(BuildContext context) {
+    if (imageUrls.isEmpty) {
+      return Container(
+        height: 220,
+        decoration: BoxDecoration(
+          color: context.primary.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Icon(Icons.image_not_supported_rounded, color: context.primary),
+      );
+    }
 
-  @override
-  double get maxExtent => 320;
-
-  @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
-    final progress = (1 - (shrinkOffset / (maxExtent - minExtent))).clamp(
-      0.0,
-      1.0,
-    );
-
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    final topPadding = MediaQuery.of(context).padding.top;
-
-    // Image Animation
-    final imageWidth = 40 + ((screenWidth - 20) - 40) * progress;
-
-    final imageHeight = 40 + (220 - 40) * progress;
-
-    final imageLeft = 52 * (1 - progress);
-
-    final imageTop = topPadding + 8 + (50 - 8) * progress;
-
-    // Title Animation
-    final titleLeft = 96 + (20 - 96) * progress;
-
-    final titleTop =
-        (topPadding + 18) +
-        ((imageTop + imageHeight + 12) - (topPadding + 18)) * progress;
-
-    return Container(
-      color: Color.lerp(
-        Theme.of(context).scaffoldBackgroundColor,
-        Colors.transparent,
-        progress,
-      ),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          // IMAGE
-          Positioned(
-            left: imageLeft,
-            top: imageTop,
-            child: Hero(
-              tag: 'event_${event.id}',
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8 + (12 * progress)),
-                child: CachedNetworkImage(
-                  imageUrl: event.imageUrl,
-                  width: imageWidth,
-                  height: imageHeight,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-          ),
-
-          // BACK BUTTON
-          Positioned(
-            left: 4,
-            top: topPadding + 4,
-            child: IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_back_ios_new),
-            ),
-          ),
-
-          // TITLE
-          Positioned(
-            left: titleLeft,
-            top: titleTop,
+    return Column(
+      children: [
+        Hero(
+          tag: heroTag,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
             child: SizedBox(
-              width: screenWidth - 150,
-              child: Text(
-                event.title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: progress < .3
-                    ? AppTextStyles.titleLarge
-                    : AppTextStyles.headlineLarge,
+              height: 220,
+              width: double.infinity,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  PageView.builder(
+                    controller: pageController,
+                    itemCount: imageUrls.length,
+                    onPageChanged: onPageChanged,
+                    itemBuilder: (context, index) {
+                      return CachedNetworkImage(
+                        imageUrl: imageUrls[index],
+                        fit: BoxFit.cover,
+                        alignment: Alignment.center,
+                      );
+                    },
+                  ),
+                  if (imageUrls.length > 1)
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 12,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(imageUrls.length, (index) {
+                          final isSelected = index == selectedIndex;
+
+                          return AnimatedContainer(
+                            duration: const Duration(milliseconds: 180),
+                            margin: const EdgeInsets.symmetric(horizontal: 3),
+                            height: 6,
+                            width: isSelected ? 18 : 6,
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? Colors.white
+                                  : Colors.white.withValues(alpha: 0.55),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
+        ),
+        if (imageUrls.length > 1) ...[
+          const SizedBox(height: 10),
+          SizedBox(
+            height: 54,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: imageUrls.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 8),
+              itemBuilder: (context, index) {
+                final isSelected = index == selectedIndex;
 
-          // SAVE BUTTON
-          Positioned(
-            right: 4,
-            top: topPadding + 4,
-            child: Consumer<EventProvider>(
-              builder: (context, provider, _) {
-                final isSaved = provider.isEventSaved(event.id);
-
-                return IconButton(
-                  onPressed: () async {
-                    if (isSaved) {
-                      await provider.unsaveEvent(event.id);
-                    } else {
-                      await provider.saveEvent(event.id);
-                    }
-                  },
-
-                  icon: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 250),
-
-                    child: Icon(
-                      isSaved
-                          ? Icons.bookmark_rounded
-                          : Icons.bookmark_border_rounded,
-
-                      key: ValueKey(isSaved),
-
-                      color: isSaved
-                          ? Theme.of(context).colorScheme.primary
-                          : null,
+                return GestureDetector(
+                  onTap: () => onThumbnailTap(index),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: isSelected
+                            ? context.primary
+                            : context.primary.withValues(alpha: 0.14),
+                        width: isSelected ? 2.5 : 1,
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(7),
+                      child: CachedNetworkImage(
+                        imageUrl: imageUrls[index],
+                        width: 52,
+                        height: 52,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 );
@@ -333,17 +338,36 @@ class EventHeaderDelegate extends SliverPersistentHeaderDelegate {
             ),
           ),
         ],
-      ),
+      ],
     );
-  }
-
-  @override
-  bool shouldRebuild(covariant EventHeaderDelegate oldDelegate) {
-    return true;
   }
 }
 
-// ── Attendees Row ─────────────────────────────────────────────────────────────
+class _InfoRow extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  final Color? textColor;
+
+  const _InfoRow({required this.icon, required this.text, this.textColor});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 18),
+        SizedBox(width: context.res.wxs),
+        Expanded(
+          child: Text(
+            text,
+            style: AppTextStyles.bodyMedium.copyWith(color: textColor),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _AttendeesRow extends StatelessWidget {
   final List<Map<String, dynamic>> attendees;
   final int goingCount;
@@ -373,10 +397,7 @@ class _AttendeesRow extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: att['color'] as Color,
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: const Color(0xFF0F0F14),
-                      width: 1.5,
-                    ),
+                    border: Border.all(color: context.background, width: 1.5),
                   ),
                   child: Center(
                     child: Text(
@@ -399,19 +420,12 @@ class _AttendeesRow extends StatelessWidget {
             children: [
               TextSpan(
                 text: '$goingCount Saved',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: AppSizes.textXs,
-                  color: Colors.white,
+                  color: context.text,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              // TextSpan(
-              //   text: '  ·  $interestedCount interested',
-              //   style: TextStyle(
-              //     fontSize: AppSizes.textXs,
-              //     color: Colors.white.withValues(alpha: 0.4),
-              //   ),
-              // ),
             ],
           ),
         ),

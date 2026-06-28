@@ -6,6 +6,7 @@ import 'package:near_vibe/core/themes/app_colors.dart';
 import 'package:near_vibe/core/themes/theme_extensions.dart';
 import 'package:near_vibe/core/utils/helper_funtions.dart';
 import 'package:near_vibe/models/event_model.dart';
+import 'package:near_vibe/widgets/app_shimmer.dart';
 import 'package:near_vibe/widgets/category_widget.dart';
 
 class CardWidget extends StatelessWidget {
@@ -17,7 +18,6 @@ class CardWidget extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: context.primary.withValues(alpha: 0.09),
-
         borderRadius: BorderRadius.circular(20),
       ),
 
@@ -26,7 +26,6 @@ class CardWidget extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(20),
@@ -38,21 +37,20 @@ class CardWidget extends StatelessWidget {
                     height: 180,
                     width: double.infinity,
                     fit: BoxFit.cover,
-                  
-                    placeholder: (context, url) => Container(
+
+                    placeholder: (context, url) => const ShimmerBox(
                       height: 180,
-                      alignment: Alignment.center,
-                      decoration: const BoxDecoration(
-                        gradient: AppColors.primaryGradient,
+                      width: double.infinity,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(20),
                       ),
-                      child: const CircularProgressIndicator(),
                     ),
-                  
+
                     errorWidget: (context, url, error) => Container(
                       height: 180,
                       alignment: Alignment.center,
-                      decoration: const BoxDecoration(
-                        gradient: AppColors.primaryGradient,
+                      decoration: BoxDecoration(
+                        gradient: AppColors.primaryGradient(context.primary),
                       ),
                       child: const Icon(Icons.broken_image_rounded, size: 50),
                     ),

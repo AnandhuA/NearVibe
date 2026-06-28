@@ -31,8 +31,9 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
   void initState() {
     super.initState();
     // ← Fetch on screen load
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       context.read<UserProvider>().fetchCurrentUser();
+      await context.read<EventProvider>().cleanupPastEvents();
       context.read<EventProvider>().fetchSavedEvents();
     });
   }
@@ -42,26 +43,28 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
     return Scaffold(
       body: screens[currentIndex],
 
-      bottomNavigationBar: Container(
-        margin: const EdgeInsets.all(16),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: context.primary.withValues(alpha: 0.09),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            navItem(icon: Icons.home_rounded, index: 0),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          margin: const EdgeInsets.all(14),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: context.primary.withValues(alpha: 0.09),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              navItem(icon: Icons.home_rounded, index: 0),
 
-            navItem(icon: Icons.map, index: 1),
+              navItem(icon: Icons.map, index: 1),
 
-            navItem(icon: Icons.add_circle_rounded, index: 2),
+              navItem(icon: Icons.add_circle_rounded, index: 2),
 
-            navItem(icon: Icons.bookmark_rounded, index: 3),
+              navItem(icon: Icons.bookmark_rounded, index: 3),
 
-            navItem(icon: Icons.person_rounded, index: 4),
-          ],
+              navItem(icon: Icons.person_rounded, index: 4),
+            ],
+          ),
         ),
       ),
     );
