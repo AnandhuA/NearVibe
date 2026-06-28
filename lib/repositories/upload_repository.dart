@@ -5,6 +5,16 @@ import 'package:http/http.dart' as http;
 import 'package:near_vibe/core/apikeys/api_key.dart';
 
 class UploadRepository {
+  Future<List<String>> uploadImages(List<File> imageFiles) async {
+    final urls = <String>[];
+
+    for (final imageFile in imageFiles) {
+      urls.add(await uploadImage(imageFile));
+    }
+
+    return urls;
+  }
+
   Future<String> uploadImage(File imageFile) async {
     try {
       final timestamp =

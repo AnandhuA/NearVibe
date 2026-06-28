@@ -33,6 +33,7 @@ class EventProvider extends ChangeNotifier {
         ..sort((a, b) => a.eventDate.compareTo(b.eventDate));
   bool _isLoading = false;
   String? _error;
+  bool _didCleanupPastEvents = false;
 
   bool get isLoading => _isLoading;
   String? get error => _error;
@@ -59,7 +60,7 @@ class EventProvider extends ChangeNotifier {
     required double latitude,
     required double longitude,
     required DateTime eventDate,
-    required File imageFile,
+    required List<File> imageFiles,
     // required File imageFile,
   }) async {
     try {
@@ -69,15 +70,16 @@ class EventProvider extends ChangeNotifier {
 
       //fetch user data
       final user = await localStorageRepository.getUser();
-      // Upload image
-      final imageUrl = await uploadRepository.uploadImage(imageFile);
+      // Upload images
+      final imageUrls = await uploadRepository.uploadImages(imageFiles);
       // add location hash
       final geoPoint = GeoFirePoint(GeoPoint(latitude, longitude));
 
       final event = EventModel(
         title: title,
         description: description,
-        imageUrl: imageUrl,
+        imageUrl: imageUrls.first,
+        imageUrls: imageUrls,
         category: category,
 
         latitude: latitude,
@@ -103,6 +105,22 @@ class EventProvider extends ChangeNotifier {
   }
 
   //=====GET ALL EVENTS ============
+
+  Future<void> cleanupPastEvents() async {
+    if (_didCleanupPastEvents) return;
+
+    try {
+      _didCleanupPastEvents = true;
+      final deletedCount = await repository.deletePastEvents();
+      if (deletedCount > 0) {
+        log('[Events] Deleted $deletedCount past events.');
+      }
+    } catch (e) {
+      _error = e.toString();
+      log('[Events] Past-event cleanup error: $e');
+      notifyListeners();
+    }
+  }
 
   Future<void> fetchEvents() async {
     _isLoading = true;

@@ -34,6 +34,56 @@ class EventRepository {
         );
   }
 
+  //=====DELETE PAST EVENTS====
+  Future<int> deletePastEvents() async {
+    try {
+      final pastEventsSnapshot = await firestore
+          .collection('events')
+          .where('eventDate', isLessThan: Timestamp.now())
+          .get();
+
+      if (pastEventsSnapshot.docs.isEmpty) return 0;
+
+      var deletedCount = 0;
+      var writeCount = 0;
+      var batch = firestore.batch();
+
+      Future<void> commitIfNeeded() async {
+        if (writeCount >= 450) {
+          await batch.commit();
+          batch = firestore.batch();
+          writeCount = 0;
+        }
+      }
+
+      for (final eventDoc in pastEventsSnapshot.docs) {
+        final savedEventsSnapshot = await firestore
+            .collection('saved_events')
+            .where('eventId', isEqualTo: eventDoc.id)
+            .get();
+
+        for (final savedDoc in savedEventsSnapshot.docs) {
+          batch.delete(savedDoc.reference);
+          writeCount++;
+          await commitIfNeeded();
+        }
+
+        batch.delete(eventDoc.reference);
+        writeCount++;
+        deletedCount++;
+        await commitIfNeeded();
+      }
+
+      if (writeCount > 0) {
+        await batch.commit();
+      }
+
+      return deletedCount;
+    } catch (e) {
+      throw FirebaseExceptionMapper.map(e);
+    }
+  }
+
   //== UPLOAD IMAGE ======
   Future<String> uploadEventImage(File imageFile) async {
     final fileName = DateTime.now().millisecondsSinceEpoch.toString();

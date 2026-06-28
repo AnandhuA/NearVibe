@@ -31,8 +31,9 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
   void initState() {
     super.initState();
     // ← Fetch on screen load
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       context.read<UserProvider>().fetchCurrentUser();
+      await context.read<EventProvider>().cleanupPastEvents();
       context.read<EventProvider>().fetchSavedEvents();
     });
   }

@@ -85,7 +85,7 @@ class _DateTimePickerWidgetState extends State<DateTimePickerWidget> {
 
                   Text(
                     selectedDate == null
-                        ? "May 24"
+                        ? "Choose date"
                         : "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}",
                     style: AppTextStyles.bodyLarge,
                   ),
@@ -119,7 +119,7 @@ class _DateTimePickerWidgetState extends State<DateTimePickerWidget> {
 
                   Text(
                     selectedTime == null
-                        ? "8:00 PM"
+                        ? "Choose time"
                         : selectedTime!.format(context),
                     style: AppTextStyles.bodyLarge,
                   ),

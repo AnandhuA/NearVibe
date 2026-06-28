@@ -15,6 +15,10 @@ extension ThemeColors on BuildContext {
   Color get background =>
       isDarkMode ? AppColors.darkBackground : AppColors.lightBackground;
 
+  // SURFACE
+  Color get surface =>
+      isDarkMode ? AppColors.darkSurface : AppColors.lightSurface;
+
   // TEXT
   Color get text => isDarkMode ? AppColors.darkText : AppColors.lightText;
 

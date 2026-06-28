@@ -86,6 +86,7 @@ class ExternalEventRepository {
       title: event['name']?.toString() ?? 'Untitled event',
       description: _eventDescription(event, venue),
       imageUrl: image['url']?.toString() ?? '',
+      imageUrls: image['url'] == null ? const [] : [image['url'].toString()],
       category: 'Music',
       latitude: double.tryParse(location['latitude']?.toString() ?? '') ?? 0,
       longitude: double.tryParse(location['longitude']?.toString() ?? '') ?? 0,
