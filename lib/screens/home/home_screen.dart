@@ -457,7 +457,7 @@ class _DistanceFilterButton extends StatelessWidget {
                       ? Icons.radio_button_checked_rounded
                       : Icons.radio_button_off_rounded,
                   size: 18,
-                  color: isSelected ? context.primary : context.hitText,
+                  color: isSelected ? null : context.hitText,
                 ),
                 const SizedBox(width: 10),
                 Text(
@@ -465,7 +465,7 @@ class _DistanceFilterButton extends StatelessWidget {
                       ? "Custom (${_formatDistance(customDistanceKm!)}km)"
                       : option,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: isSelected ? context.primary : context.text,
+                    color: isSelected ? null : context.text,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                   ),
                 ),

@@ -23,7 +23,7 @@ class CategoryWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final foregroundColor = isSelected
         ? Colors.white
-        : titleColor ?? context.primary;
+        : titleColor;
 
     return GestureDetector(
       onTap: ontap,
